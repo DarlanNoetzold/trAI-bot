@@ -2,6 +2,7 @@ package tech.noetzold.crypto_bot_backend.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.ClientRequest;
@@ -10,16 +11,18 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 @RequiredArgsConstructor
+@ComponentScan("tech.noetzold.crypto_bot_backend")
 public class WebClientConfig {
 
     private final BinanceProperties binanceProperties;
 
     @Bean
     public WebClient binanceWebClient() {
+        System.out.println("✅ WebClient foi configurado com: " + binanceProperties.getApiUrl());
+
         return WebClient.builder()
-                .baseUrl(binanceProperties.getApiUrl())
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, "application/json")
-                .filter(apiKeyHeaderFilter())
+                .baseUrl(binanceProperties.getApiUrl()) // <- isso é essencial
+                .defaultHeader("X-MBX-APIKEY", binanceProperties.getApiKey())
                 .build();
     }
 
