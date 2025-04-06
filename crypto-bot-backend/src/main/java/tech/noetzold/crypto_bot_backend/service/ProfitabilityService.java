@@ -18,6 +18,9 @@ public class ProfitabilityService {
     public BigDecimal calculateRealizedProfit(String symbol) {
         List<Map> trades = accountService.getAccountTrades(symbol, 1000);
 
+        log.info("📈 [Profitability] Calculating realized profit for symbol: {}", symbol);
+        log.info("🔍 [Profitability] Number of trades fetched: {}", trades.size());
+
         BigDecimal totalBuy = BigDecimal.ZERO;
         BigDecimal totalSell = BigDecimal.ZERO;
 
@@ -34,6 +37,12 @@ public class ProfitabilityService {
             }
         }
 
-        return totalSell.subtract(totalBuy);
+        BigDecimal profit = totalSell.subtract(totalBuy);
+
+        log.info("💰 [Profitability] Total Buy: {}", totalBuy);
+        log.info("💸 [Profitability] Total Sell: {}", totalSell);
+        log.info("📊 [Profitability] Realized Profit: {}", profit);
+
+        return profit;
     }
 }
