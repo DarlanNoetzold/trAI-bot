@@ -25,7 +25,7 @@ public class BinanceOrderService {
     private final BinanceProperties binanceProperties;
     private final TimeUtil timeUtil;
 
-    public Map<String, Object> placeOrder(OrderRequestDTO request) {
+    public Map placeOrder(OrderRequestDTO request) {
         long timestamp = timeUtil.getServerTimestamp();
 
         Map<String, String> params = new LinkedHashMap<>();
@@ -50,7 +50,7 @@ public class BinanceOrderService {
                 .block();
     }
 
-    public Map<String, Object> placeOcoOrder(OrderOcoRequestDTO request) {
+    public Map placeOcoOrder(OrderOcoRequestDTO request) {
         long timestamp = timeUtil.getServerTimestamp();
 
         Map<String, String> params = new LinkedHashMap<>();
@@ -73,7 +73,7 @@ public class BinanceOrderService {
                 .block();
     }
 
-    public Map<String, Object> cancelOrder(String symbol, Long orderId, String origClientOrderId) {
+    public Map cancelOrder(String symbol, Long orderId, String origClientOrderId) {
         long timestamp = timeUtil.getServerTimestamp();
         Map<String, String> params = new LinkedHashMap<>();
         params.put("symbol", symbol);
@@ -91,7 +91,7 @@ public class BinanceOrderService {
                 .block();
     }
 
-    public Map<String, Object> cancelOcoOrder(String symbol, Long orderListId, String listClientOrderId) {
+    public Map cancelOcoOrder(String symbol, Long orderListId, String listClientOrderId) {
         long timestamp = timeUtil.getServerTimestamp();
         Map<String, String> params = new LinkedHashMap<>();
         params.put("symbol", symbol);
