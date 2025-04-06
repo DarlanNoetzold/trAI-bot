@@ -2,14 +2,13 @@ package tech.noetzold.crypto_bot_backend.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriComponentsBuilder;
 import tech.noetzold.crypto_bot_backend.config.BinanceProperties;
 import tech.noetzold.crypto_bot_backend.util.BinanceSignatureUtil;
 import tech.noetzold.crypto_bot_backend.util.TimeUtil;
 
-import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +18,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class BinanceAccountService {
 
+    @Qualifier("binanceWebClient")
     private final WebClient binanceWebClient;
+
     private final BinanceProperties binanceProperties;
     private final TimeUtil timeUtil;
 
@@ -27,15 +28,18 @@ public class BinanceAccountService {
         long timestamp = timeUtil.getServerTimestamp();
         String query = "timestamp=" + timestamp;
         String signature = BinanceSignatureUtil.generateSignature(query, binanceProperties.getSecretKey());
-        URI uri = UriComponentsBuilder.fromPath("/v3/account")
-                .query(query + "&signature=" + signature)
-                .build(true)
-                .toUri();
+
+        String fullUrl = binanceProperties.getApiUrl() + "/v3/account?" + query + "&signature=" + signature;
+
+        log.info("🌐 [getAccountInfo] Base URL: {}", binanceProperties.getApiUrl());
+        log.info("🔗 [getAccountInfo] Full request URL: {}", fullUrl);
+        log.info("🔐 [getAccountInfo] Generated signature: {}", signature);
 
         return binanceWebClient.get()
-                .uri(uri)
+                .uri(fullUrl)
                 .retrieve()
                 .bodyToMono(Map.class)
+                .doOnError(error -> log.error("❌ [getAccountInfo] Request error: {}", error.getMessage()))
                 .block();
     }
 
@@ -48,12 +52,15 @@ public class BinanceAccountService {
         params.put("timestamp", String.valueOf(timestamp));
 
         String query = buildQuery(params);
-        URI uri = buildSignedUri("/v3/myTrades", query);
+        String fullUrl = binanceProperties.getApiUrl() + "/v3/myTrades?" + query;
+
+        log.info("🔗 [getAccountTrades] Full request URL: {}", fullUrl);
 
         return binanceWebClient.get()
-                .uri(uri)
+                .uri(fullUrl)
                 .retrieve()
                 .bodyToFlux(Map.class)
+                .doOnError(error -> log.error("❌ [getAccountTrades] Request error: {}", error.getMessage()))
                 .collectList()
                 .block();
     }
@@ -63,13 +70,8 @@ public class BinanceAccountService {
                 .map(e -> e.getKey() + "=" + e.getValue())
                 .reduce((a, b) -> a + "&" + b).orElse("");
         String signature = BinanceSignatureUtil.generateSignature(query, binanceProperties.getSecretKey());
+        log.info("🧮 [buildQuery] Raw query: {}", query);
+        log.info("🔐 [buildQuery] Generated signature: {}", signature);
         return query + "&signature=" + signature;
-    }
-
-    private URI buildSignedUri(String path, String query) {
-        return UriComponentsBuilder.fromPath(path)
-                .query(query)
-                .build(true)
-                .toUri();
     }
 }
