@@ -16,12 +16,12 @@ public class SyncService {
     private final BinanceAccountService accountService;
 
     public List<List<Object>> syncCandles(String symbol, String interval, int limit) {
-        log.info("Sincronizando candles: symbol={}, interval={}, limit={}", symbol, interval, limit);
+        log.info("📡 [syncCandles] Syncing candles | symbol={}, interval={}, limit={}", symbol, interval, limit);
         return marketService.getCandles(symbol, interval, limit);
     }
 
     public List<Map> syncAccountTrades(String symbol) {
-        log.info("Sincronizando trades executadas: symbol={}", symbol);
+        log.info("📡 [syncAccountTrades] Syncing account trades | symbol={}", symbol);
         return accountService.getAccountTrades(symbol, 1000);
     }
 }
