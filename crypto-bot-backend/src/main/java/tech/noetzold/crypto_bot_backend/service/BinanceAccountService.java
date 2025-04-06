@@ -23,7 +23,7 @@ public class BinanceAccountService {
     private final BinanceProperties binanceProperties;
     private final TimeUtil timeUtil;
 
-    public Map<String, Object> getAccountInfo() {
+    public Map getAccountInfo() {
         long timestamp = timeUtil.getServerTimestamp();
         String query = "timestamp=" + timestamp;
         String signature = BinanceSignatureUtil.generateSignature(query, binanceProperties.getSecretKey());
