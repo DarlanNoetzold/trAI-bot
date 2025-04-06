@@ -15,7 +15,7 @@ public class BinanceMarketService {
 
     private final WebClient binanceWebClient;
 
-    public List<List<Object>> getCandles(String symbol, String interval, int limit) {
+    public List getCandles(String symbol, String interval, int limit) {
         return binanceWebClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/v3/klines")
@@ -28,7 +28,7 @@ public class BinanceMarketService {
                 .block();
     }
 
-    public Map<String, Object> getDepth(String symbol, int limit) {
+    public Map getDepth(String symbol, int limit) {
         return binanceWebClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/v3/depth")
@@ -40,7 +40,7 @@ public class BinanceMarketService {
                 .block();
     }
 
-    public Map<String, Object> getLastPrice(String symbol) {
+    public Map getLastPrice(String symbol) {
         return binanceWebClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/v3/ticker/price")
@@ -51,7 +51,7 @@ public class BinanceMarketService {
                 .block();
     }
 
-    public Map<String, Object> getBookTicker(String symbol) {
+    public Map getBookTicker(String symbol) {
         return binanceWebClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/v3/ticker/bookTicker")
