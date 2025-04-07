@@ -1,0 +1,6 @@
+tech\noetzold\crypto_bot_backend\BinanceAccountServiceTest.class
+tech\noetzold\crypto_bot_backend\ProfitabilityServiceTest.class
+tech\noetzold\crypto_bot_backend\CryptoBotBackendApplicationTests.class
+tech\noetzold\crypto_bot_backend\BinanceMarketServiceTest.class
+tech\noetzold\crypto_bot_backend\BinanceOrderServiceTest.class
+tech\noetzold\crypto_bot_backend\StrategyServiceTest.class
