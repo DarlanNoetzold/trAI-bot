@@ -3,48 +3,42 @@ package tech.noetzold.crypto_bot_backend.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tech.noetzold.crypto_bot_backend.model.Strategy;
-import tech.noetzold.crypto_bot_backend.service.StrategyService;
+import tech.noetzold.crypto_bot_backend.service.StrategyRunnerService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api/strategy")
+@RequestMapping("/api/strategies")
 @RequiredArgsConstructor
 public class StrategyController {
 
-    private final StrategyService strategyService;
+    private final StrategyRunnerService strategyRunnerService;
 
-    @PostMapping
-    public ResponseEntity<Strategy> createStrategy(@RequestBody Strategy strategy) {
-        return ResponseEntity.ok(strategyService.saveStrategy(strategy));
-    }
-
+    // Retorna a lista de estratégias disponíveis na pasta /strategies
     @GetMapping
-    public ResponseEntity<List<Strategy>> getAllStrategies() {
-        return ResponseEntity.ok(strategyService.listAllStrategies());
+    public ResponseEntity<List<String>> listStrategies() {
+        return ResponseEntity.ok(strategyRunnerService.listAvailableStrategies());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Strategy> getStrategyById(@PathVariable Long id) {
-        return strategyService.getStrategyById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    // Executa uma estratégia Python existente (com parâmetros se necessário)
+    @PostMapping("/run/{strategyName}")
+    public ResponseEntity<String> runStrategy(
+            @PathVariable String strategyName,
+            @RequestBody(required = false) Map<String, String> params
+    ) {
+        String output = strategyRunnerService.runStrategy(strategyName, params);
+        return ResponseEntity.ok(output);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteStrategy(@PathVariable Long id) {
-        strategyService.deleteStrategy(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("/{id}/activate")
-    public ResponseEntity<Strategy> activateStrategy(@PathVariable Long id) {
-        return ResponseEntity.ok(strategyService.activateStrategy(id));
-    }
-
-    @PostMapping("/{id}/deactivate")
-    public ResponseEntity<Strategy> deactivateStrategy(@PathVariable Long id) {
-        return ResponseEntity.ok(strategyService.deactivateStrategy(id));
+    // Executa um script Python customizado, enviado diretamente no corpo da requisição
+    @PostMapping("/custom")
+    public ResponseEntity<String> runCustomStrategy(
+            @RequestBody Map<String, Object> request
+    ) {
+        String pythonCode = (String) request.get("code");
+        Map<String, String> params = (Map<String, String>) request.get("params");
+        String output = strategyRunnerService.runCustomScript(pythonCode, params);
+        return ResponseEntity.ok(output);
     }
 }
