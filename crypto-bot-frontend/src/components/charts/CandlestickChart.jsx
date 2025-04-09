@@ -1,0 +1,1 @@
+// Gráfico de candles 
