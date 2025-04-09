@@ -1,44 +1,32 @@
-import requests
-import numpy as np
 import pandas as pd
-import sys
-import time
+import requests
 
-def fetch_candles(symbol="BTCUSDT", interval="5m", limit=100):
-    url = f"http://localhost:8080/api/market/candles?symbol={symbol}&interval={interval}&limit={limit}"
-    response = requests.get(url)
-    return response.json()
+def get_klines(symbol="BTCUSDT", interval="1h", limit=100):
+    url = f"https://api.binance.com/api/v3/klines?symbol={symbol}&interval={interval}&limit={limit}"
+    raw_data = requests.get(url).json()
+    closes = [float(entry[4]) for entry in raw_data]
+    return closes
 
-def calculate_rsi(prices, period=14):
-    delta = np.diff(prices)
-    up = np.where(delta > 0, delta, 0)
-    down = np.where(delta < 0, -delta, 0)
-
-    roll_up = pd.Series(up).rolling(period).mean()
-    roll_down = pd.Series(down).rolling(period).mean()
-
-    rs = roll_up / roll_down
-    rsi = 100.0 - (100.0 / (1.0 + rs))
+def compute_rsi(closes, period=14):
+    series = pd.Series(closes)
+    delta = series.diff()
+    gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()
+    rs = gain / loss
+    rsi = 100 - (100 / (1 + rs))
     return rsi
 
-def main():
-    symbol = "BTCUSDT"
-    while True:
-        candles = fetch_candles(symbol=symbol)
-        close_prices = [float(c[4]) for c in candles]
-
-        rsi_series = calculate_rsi(close_prices)
-        rsi = rsi_series.iloc[-1]
-
-        print(f"[RSI] RSI atual para {symbol}: {rsi:.2f}")
-        if rsi < 30:
-            print("🔼 BUY sinal detectado.")
-        elif rsi > 70:
-            print("🔽 SELL sinal detectado.")
-        else:
-            print("⏸ HOLD - Nenhuma ação tomada.")
-
-        time.sleep(60)
+def execute(symbol="BTCUSDT"):
+    closes = get_klines(symbol)
+    rsi = compute_rsi(closes)
+    last_rsi = rsi.iloc[-1]
+    print(f"[RSI] Último RSI: {last_rsi:.2f}")
+    if last_rsi < 30:
+        print(f"[RSI] Sinal de COMPRA para {symbol}")
+    elif last_rsi > 70:
+        print(f"[RSI] Sinal de VENDA para {symbol}")
+    else:
+        print(f"[RSI] Nenhuma ação para {symbol}")
 
 if __name__ == "__main__":
-    main()
+    execute()
