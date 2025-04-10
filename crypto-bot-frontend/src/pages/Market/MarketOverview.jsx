@@ -1,9 +1,9 @@
 // Tela de mercado 
 import React, { useEffect, useState } from 'react';
-import CandlestickChart from '@/components/charts/CandlestickChart';
-import DataTable from '@/components/tables/DataTable';
-import Loader from '@/components/common/Loader';
-import { getLastPrice, getCandles, getDepth, getRecentTrades, getBookTicker } from '@/services/marketService';
+import CandlestickChart from 'components/charts/CandlestickChart';
+import DataTable from 'components/tables/DataTable';
+import Loader from 'components/common/Loader';
+import { getLastPrice, getCandles, getDepth, getRecentTrades, getBookTicker } from 'services/marketService';
 
 const MarketOverview = () => {
   const [symbol, setSymbol] = useState('BTCUSDT');
