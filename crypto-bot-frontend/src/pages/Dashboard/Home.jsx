@@ -102,10 +102,17 @@ const features = [
   },
   {
     icon: <ShoppingCart size={32} />,
-    title: "Ordens",
+    title: "Ordens Comuns",
     description:
-      "Envie ordens simples e OCO rapidamente com controle completo.",
-    link: "/orders",
+      "Envie ordens simples com preenchimento imediato e histórico de execução.",
+    link: "/orders/standard",
+  },
+  {
+    icon: <ShoppingCart size={32} />,
+    title: "Ordens OCO",
+    description:
+      "Envie ordens OCO com stop loss e take profit automáticos.",
+    link: "/orders/oco",
   },
   {
     icon: <LayoutDashboard size={32} />,
