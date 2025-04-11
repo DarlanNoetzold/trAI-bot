@@ -9,6 +9,10 @@ binance:
   symbol: BTCUSDT
   profitability: 1.1
 
+jwt:
+  secret: a7Zml3kERUdv1tG64g2W9D3rCu8FvXy98lM5aDhzVPVb9BzRkK28PmQdUqU5YQzX
+
+
 
 spring:
   datasource:
