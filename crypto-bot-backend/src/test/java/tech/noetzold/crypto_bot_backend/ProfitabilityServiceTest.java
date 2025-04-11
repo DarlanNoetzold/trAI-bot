@@ -25,9 +25,9 @@ public class ProfitabilityServiceTest {
 
     @Test
     public void testCalculateRealizedProfit() {
-        List<Map> mockTrades = List.of(
-                Map.of("price", "100.0", "qty", "1", "isBuyer", "true"),
-                Map.of("price", "110.0", "qty", "1", "isBuyer", "false")
+        List<Map<String, Object>> mockTrades = List.of(
+                Map.of("price", "100.0", "qty", "1", "isBuyer", true),
+                Map.of("price", "110.0", "qty", "1", "isBuyer", false)
         );
 
         when(accountService.getAccountTrades("BTCUSDT", 1000)).thenReturn(mockTrades);
