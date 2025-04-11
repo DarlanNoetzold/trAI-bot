@@ -1,22 +1,16 @@
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import AppRouter from './router/AppRouter';
+import Sidebar from './components/common/Sidebar';
 
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-100 text-gray-800">
-        <header className="bg-white shadow p-4 mb-6">
-          <h1 className="text-2xl font-bold">Crypto Bot Dashboard</h1>
-        </header>
-
-        <main className="p-4">
+      <div style={{ display: 'flex', background: '#121b12' }}>
+        <Sidebar />
+        <main style={{ flex: 1, padding: '1.5rem', overflowY: 'auto' }}>
           <AppRouter />
         </main>
-
-        <footer className="text-center text-sm text-gray-500 mt-10 p-4 border-t">
-          &copy; {new Date().getFullYear()} Crypto Bot. All rights reserved.
-        </footer>
       </div>
     </Router>
   );
