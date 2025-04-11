@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   Home,
@@ -7,6 +7,7 @@ import {
   Layers,
   User,
   ChevronDown,
+  RefreshCcw,
 } from 'lucide-react';
 import styled from 'styled-components';
 
@@ -36,7 +37,8 @@ const SidebarWrapper = styled.div`
     gap: 0.75rem;
 
     a,
-    .menu-toggle {
+    .menu-toggle,
+    .env-toggle {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -96,6 +98,19 @@ const SidebarWrapper = styled.div`
 
 const Sidebar = () => {
   const [ordersOpen, setOrdersOpen] = useState(false);
+  const [env, setEnv] = useState('TESTNET');
+
+  useEffect(() => {
+    const stored = localStorage.getItem('binanceEnv');
+    if (stored) setEnv(stored);
+  }, []);
+
+  const toggleEnv = () => {
+    const newEnv = env === 'TESTNET' ? 'PRODUCTION' : 'TESTNET';
+    setEnv(newEnv);
+    localStorage.setItem('binanceEnv', newEnv);
+    window.location.reload();
+  };
 
   return (
     <SidebarWrapper>
@@ -160,6 +175,11 @@ const Sidebar = () => {
           <User size={20} />
           <span>Conta</span>
         </NavLink>
+
+        <button className="env-toggle" onClick={toggleEnv}>
+          <RefreshCcw size={18} />
+          <span>Ambiente: {env}</span>
+        </button>
       </nav>
     </SidebarWrapper>
   );
