@@ -1,41 +1,69 @@
-// Gráfico de candles 
-import React from 'react';
-import {
-  ResponsiveContainer,
-  ComposedChart,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  CandlestickSeries,
-} from 'recharts';
+import React, { useEffect, useRef } from 'react';
+import { createChart } from 'lightweight-charts';
 
-function CandlestickChart({ data }) {
-  const formatData = data.map(([timestamp, open, high, low, close]) => ({
-    time: new Date(timestamp).toLocaleTimeString(),
-    open: parseFloat(open),
-    high: parseFloat(high),
-    low: parseFloat(low),
-    close: parseFloat(close),
-  }));
+const CandlestickChart = ({ data }) => {
+  const chartContainerRef = useRef(null);
+  const chartRef = useRef(null);
+  const seriesRef = useRef(null);
+
+  useEffect(() => {
+    // Criação do gráfico com tema dark
+    chartRef.current = createChart(chartContainerRef.current, {
+      layout: {
+        background: { color: '#111' },
+        textColor: '#DDD',
+      },
+      grid: {
+        vertLines: { color: '#222' },
+        horzLines: { color: '#222' },
+      },
+      width: chartContainerRef.current.clientWidth,
+      height: 400,
+      timeScale: {
+        borderColor: '#444',
+        timeVisible: true,
+        secondsVisible: true,
+      },
+    });
+
+    seriesRef.current = chartRef.current.addCandlestickSeries({
+      upColor: '#26a69a',
+      downColor: '#ef5350',
+      borderVisible: false,
+      wickUpColor: '#26a69a',
+      wickDownColor: '#ef5350',
+    });
+
+    return () => {
+      chartRef.current.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!seriesRef.current || !data || data.length === 0) return;
+
+    // Formatação dos dados (timestamp correto e slicing dos últimos 50)
+    const formattedData = data
+      .map(candle => ({
+        time: Math.floor(candle[0] / 1000),
+        open: parseFloat(candle[1]),
+        high: parseFloat(candle[2]),
+        low: parseFloat(candle[3]),
+        close: parseFloat(candle[4]),
+      }))
+      .slice(-50); // últimos 50 candles
+
+    seriesRef.current.setData(formattedData);
+    chartRef.current.timeScale().fitContent();
+  }, [data]);
 
   return (
-    <ResponsiveContainer width="100%" height={400}>
-      <ComposedChart data={formatData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="time" />
-        <YAxis domain={['dataMin', 'dataMax']} />
-        <Tooltip />
-        <CandlestickSeries
-          dataKey="close"
-          openKey="open"
-          closeKey="close"
-          highKey="high"
-          lowKey="low"
-        />
-      </ComposedChart>
-    </ResponsiveContainer>
+    <div
+      ref={chartContainerRef}
+      className="w-full"
+      style={{ width: '100%', height: 400 }}
+    />
   );
-}
+};
 
 export default CandlestickChart;
