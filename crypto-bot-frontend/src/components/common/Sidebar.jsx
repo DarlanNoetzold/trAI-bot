@@ -8,8 +8,10 @@ import {
   User,
   ChevronDown,
   RefreshCcw,
+  LogOut
 } from 'lucide-react';
 import styled from 'styled-components';
+import { useAuth } from '../../contexts/AuthContext';
 
 const SidebarWrapper = styled.div`
   width: 250px;
@@ -29,6 +31,31 @@ const SidebarWrapper = styled.div`
     text-align: center;
     margin-bottom: 2.5rem;
     text-shadow: 0 0 8px #4d6b3c;
+  }
+
+  .user-info {
+    text-align: center;
+    margin-bottom: 1.5rem;
+
+    p {
+      margin: 0 0 0.5rem;
+      color: #9ccc9c;
+    }
+
+    button {
+      background-color: #7fbb5e;
+      color: #0f150f;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+
+      &:hover {
+        background-color: #9ad187;
+      }
+    }
   }
 
   nav {
@@ -99,6 +126,7 @@ const SidebarWrapper = styled.div`
 const Sidebar = () => {
   const [ordersOpen, setOrdersOpen] = useState(false);
   const [env, setEnv] = useState('TESTNET');
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     const stored = localStorage.getItem('binanceEnv');
@@ -112,9 +140,17 @@ const Sidebar = () => {
     window.location.reload();
   };
 
+  if (!user) return null;
+
   return (
     <SidebarWrapper>
       <div className="logo">CryptoBot</div>
+
+      <div className="user-info">
+        <p>Bem-vindo, {user.username}</p>
+        <button onClick={logout}><LogOut size={16} style={{ marginRight: 4 }} /> Logout</button>
+      </div>
+
       <nav>
         <NavLink to="/" className={({ isActive }) => (isActive ? 'active' : '')}>
           <Home size={20} />
