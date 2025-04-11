@@ -21,7 +21,6 @@ public class BinanceMarketService {
 
     @Qualifier("binanceWebClient")
     private final WebClient binanceWebClient;
-    private final BinanceProperties binanceProperties;
 
     private boolean isSymbolValid(String symbol) {
         return symbol != null && !symbol.trim().isEmpty() && symbol.matches("[A-Z0-9]+");
