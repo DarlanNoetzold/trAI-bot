@@ -4,10 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
+import tech.noetzold.crypto_bot_backend.context.BinanceEnvironmentContext;
+import tech.noetzold.crypto_bot_backend.enums.BinanceEnvironment;
+
+import java.net.URI;
 
 @Configuration
 @RequiredArgsConstructor
@@ -18,20 +21,45 @@ public class WebClientConfig {
 
     @Bean
     public WebClient binanceWebClient() {
-        System.out.println("✅ WebClient foi configurado com: " + binanceProperties.getApiUrl());
-
         return WebClient.builder()
-                .baseUrl(binanceProperties.getApiUrl()) // <- isso é essencial
-                .defaultHeader("X-MBX-APIKEY", binanceProperties.getApiKey())
+                .filter(rewriteUriBasedOnEnv())
+                .filter(addApiKeyHeader())
                 .build();
     }
 
-    private ExchangeFilterFunction apiKeyHeaderFilter() {
-        return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
-            ClientRequest modifiedRequest = ClientRequest.from(clientRequest)
-                    .headers(headers -> headers.set("X-MBX-APIKEY", binanceProperties.getApiKey()))
+    private ExchangeFilterFunction rewriteUriBasedOnEnv() {
+        return ExchangeFilterFunction.ofRequestProcessor(request -> {
+            String baseUrl = BinanceEnvironmentContext.get() == BinanceEnvironment.PRODUCTION
+                    ? binanceProperties.getProductionApiUrl()
+                    : binanceProperties.getTestnetApiUrl();
+
+            String originalPath = request.url().getRawPath(); // mantém a path correta
+            String originalQuery = request.url().getRawQuery();
+
+            String finalUrl = baseUrl + originalPath;
+            if (originalQuery != null && !originalQuery.isEmpty()) {
+                finalUrl += "?" + originalQuery;
+            }
+
+            ClientRequest newRequest = ClientRequest.from(request)
+                    .url(URI.create(finalUrl))
                     .build();
-            return reactor.core.publisher.Mono.just(modifiedRequest);
+
+            return reactor.core.publisher.Mono.just(newRequest);
+        });
+    }
+
+    private ExchangeFilterFunction addApiKeyHeader() {
+        return ExchangeFilterFunction.ofRequestProcessor(request -> {
+            String apiKey = BinanceEnvironmentContext.get() == BinanceEnvironment.PRODUCTION
+                    ? binanceProperties.getProductionApiKey()
+                    : binanceProperties.getTestnetApiKey();
+
+            ClientRequest newRequest = ClientRequest.from(request)
+                    .headers(headers -> headers.set("X-MBX-APIKEY", apiKey))
+                    .build();
+
+            return reactor.core.publisher.Mono.just(newRequest);
         });
     }
 }
