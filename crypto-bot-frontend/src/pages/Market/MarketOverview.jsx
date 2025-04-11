@@ -61,16 +61,6 @@ const Section = styled.div`
     color: #a5c8a2;
     margin-bottom: 0.5rem;
   }
-
-  pre {
-    background: #151d15;
-    color: #cfe9c8;
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: inset 0 0 10px #30463060;
-    font-size: 0.85rem;
-    overflow-x: auto;
-  }
 `;
 
 const LastPrice = styled.div`
@@ -79,6 +69,53 @@ const LastPrice = styled.div`
 
   strong {
     color: #7fbb5e;
+  }
+`;
+
+const BookWrapper = styled.div`
+  background: #1b2d1b;
+  border: 1px solid #3f5f3f;
+  border-radius: 8px;
+  padding: 1rem;
+  font-size: 0.85rem;
+  color: #cfe9c8;
+  max-height: 400px;
+  overflow-y: auto;
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th, td {
+      padding: 0.5rem;
+      border-bottom: 1px solid #2c3c2c;
+    }
+
+    th {
+      color: #9ccc9c;
+      text-align: left;
+    }
+  }
+`;
+
+const TradeTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #1a261a;
+  color: #d8f2d0;
+  font-size: 0.85rem;
+  border-radius: 8px;
+  overflow: hidden;
+
+  th, td {
+    padding: 0.5rem;
+    border-bottom: 1px solid #2f3f2f;
+    text-align: left;
+  }
+
+  th {
+    background-color: #233423;
+    color: #a5e6a5;
   }
 `;
 
@@ -127,9 +164,7 @@ const MarketOverview = () => {
           <label>Ativo:</label>
           <select value={symbol} onChange={(e) => setSymbol(e.target.value)}>
             {symbolsList.map((sym) => (
-              <option key={sym} value={sym}>
-                {sym}
-              </option>
+              <option key={sym} value={sym}>{sym}</option>
             ))}
           </select>
         </div>
@@ -138,9 +173,7 @@ const MarketOverview = () => {
           <label>Intervalo:</label>
           <select value={interval} onChange={(e) => setInterval(e.target.value)}>
             {['1m', '5m', '15m', '1h', '4h', '1d'].map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
+              <option key={opt} value={opt}>{opt}</option>
             ))}
           </select>
         </div>
@@ -157,18 +190,61 @@ const MarketOverview = () => {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
         <Section>
           <h3>Livro de Ordens</h3>
-          <pre>{JSON.stringify(depth, null, 2)}</pre>
+          <BookWrapper>
+            <table>
+              <thead>
+                <tr>
+                  <th>Preço</th>
+                  <th>Quantidade</th>
+                </tr>
+              </thead>
+              <tbody>
+                {depth?.bids?.slice(0, 10).map((bid, idx) => (
+                  <tr key={`bid-${idx}`}>
+                    <td>{bid[0]}</td>
+                    <td>{bid[1]}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </BookWrapper>
         </Section>
 
         <Section>
           <h3>Últimos Trades</h3>
-          <DataTable data={trades} columns={['id', 'price', 'qty', 'time']} />
+          <BookWrapper>
+            <TradeTable>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Preço</th>
+                  <th>Qtd</th>
+                  <th>Timestamp</th>
+                </tr>
+              </thead>
+              <tbody>
+                {trades?.map((t) => (
+                  <tr key={t.id}>
+                    <td>{t.id}</td>
+                    <td>{t.price}</td>
+                    <td>{t.qty}</td>
+                    <td>{new Date(t.time).toLocaleTimeString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </TradeTable>
+          </BookWrapper>
         </Section>
       </div>
 
       <Section>
         <h3>Book Ticker</h3>
-        <pre>{JSON.stringify(bookTicker, null, 2)}</pre>
+        <BookWrapper>
+          <p><strong>Ask Price:</strong> {bookTicker?.askPrice}</p>
+          <p><strong>Ask Qty:</strong> {bookTicker?.askQty}</p>
+          <p><strong>Bid Price:</strong> {bookTicker?.bidPrice}</p>
+          <p><strong>Bid Qty:</strong> {bookTicker?.bidQty}</p>
+        </BookWrapper>
       </Section>
     </Container>
   );
