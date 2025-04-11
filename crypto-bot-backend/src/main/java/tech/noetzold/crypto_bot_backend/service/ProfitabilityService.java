@@ -16,7 +16,7 @@ public class ProfitabilityService {
     private final BinanceAccountService accountService;
 
     public BigDecimal calculateRealizedProfit(String symbol) {
-        List<Map> trades = accountService.getAccountTrades(symbol, 1000);
+        List<Map<String, Object>> trades = accountService.getAccountTrades(symbol, 1000);
 
         log.info("📈 [Profitability] Calculating realized profit for symbol: {}", symbol);
         log.info("🔍 [Profitability] Number of trades fetched: {}", trades.size());
