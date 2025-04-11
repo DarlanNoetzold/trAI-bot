@@ -20,7 +20,7 @@ public class SyncService {
         return marketService.getCandles(symbol, interval, limit);
     }
 
-    public List<Map> syncAccountTrades(String symbol) {
+    public List<Map<String, Object>> syncAccountTrades(String symbol) {
         log.info("📡 [syncAccountTrades] Syncing account trades | symbol={}", symbol);
         return accountService.getAccountTrades(symbol, 1000);
     }
