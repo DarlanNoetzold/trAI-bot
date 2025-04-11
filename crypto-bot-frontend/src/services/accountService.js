@@ -6,7 +6,7 @@ export const getAccountInfo = async () => {
   return response.data;
 };
 
-export const getAccountStatus = async () => {
-  const response = await api.get('/account/status');
+export const getAccountTrades = async (symbol, limit = 50) => {
+  const response = await api.get(`/account/trades?symbol=${symbol}&limit=${limit}`);
   return response.data;
 };
