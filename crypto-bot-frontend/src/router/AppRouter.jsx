@@ -8,17 +8,70 @@ import StrategyManager from '../pages/Strategies/StrategyManager';
 import StrategyRunner from '../pages/Strategies/StrategyRunner';
 import AccountInfo from '../pages/Account/AccountInfo';
 import Home from '../pages/Dashboard/Home';
+import AuthPage from '../pages/Auth/AuthPage';
+
+import { useAuth } from '../contexts/AuthContext';
+
+const PrivateRoute = ({ children }) => {
+  const { user } = useAuth();
+  return user ? children : <Navigate to="/auth" replace />;
+};
 
 const AppRouter = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/market" element={<MarketOverview />} />
-      <Route path="/orders/standard" element={<StandardOrders />} />
-      <Route path="/orders/oco" element={<OcoOrders />} />
-      <Route path="/strategies" element={<StrategyManager />} />
-      <Route path="/strategies/running" element={<StrategyRunner />} />
-      <Route path="/account" element={<AccountInfo />} />
+      <Route path="/auth" element={<AuthPage />} />
+
+      <Route
+        path="/market"
+        element={
+          <PrivateRoute>
+            <MarketOverview />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/orders/standard"
+        element={
+          <PrivateRoute>
+            <StandardOrders />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/orders/oco"
+        element={
+          <PrivateRoute>
+            <OcoOrders />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/strategies"
+        element={
+          <PrivateRoute>
+            <StrategyManager />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/strategies/running"
+        element={
+          <PrivateRoute>
+            <StrategyRunner />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/account"
+        element={
+          <PrivateRoute>
+            <AccountInfo />
+          </PrivateRoute>
+        }
+      />
+
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
