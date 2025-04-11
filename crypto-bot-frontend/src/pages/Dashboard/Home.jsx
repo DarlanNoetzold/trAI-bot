@@ -1,20 +1,28 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
 import styled from "styled-components";
 import {
   BarChart,
   ShoppingCart,
   LayoutDashboard,
   User,
+  Lock,
+  LogIn,
+  LogOut,
 } from "lucide-react";
+
+import AuthModal from "../Auth/AuthPage";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Wrapper = styled.div`
   background: linear-gradient(to bottom, #0a0f0a, #121b12);
   min-height: 100vh;
+  width: 100%;
   color: #e0e0e0;
   padding: 4rem 1rem;
   font-family: "Courier New", Courier, monospace;
+  position: relative;
+  z-index: 1;
 
   .heading {
     font-size: 3rem;
@@ -68,13 +76,13 @@ const Wrapper = styled.div`
         color: #b0c2b0;
       }
 
-      a {
+      .link {
         margin-top: 1rem;
         display: inline-block;
         color: #7fbb5e;
         font-weight: bold;
         font-size: 0.9rem;
-        text-decoration: none;
+        cursor: pointer;
         transition: color 0.3s ease;
 
         &:hover {
@@ -82,6 +90,30 @@ const Wrapper = styled.div`
           text-decoration: underline;
         }
       }
+    }
+  }
+
+  .auth-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+  }
+
+  .logout-btn {
+    background-color: #7fbb5e;
+    color: #121b12;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.3s;
+
+    &:hover {
+      background-color: #9ad187;
     }
   }
 
@@ -93,44 +125,55 @@ const Wrapper = styled.div`
   }
 `;
 
-const features = [
-  {
-    icon: <BarChart size={32} />,
-    title: "Mercado em Tempo Real",
-    description: "Visualize preços, candles e ordens com gráficos dinâmicos.",
-    link: "/market",
-  },
-  {
-    icon: <ShoppingCart size={32} />,
-    title: "Ordens Comuns",
-    description:
-      "Envie ordens simples com preenchimento imediato e histórico de execução.",
-    link: "/orders/standard",
-  },
-  {
-    icon: <ShoppingCart size={32} />,
-    title: "Ordens OCO",
-    description:
-      "Envie ordens OCO com stop loss e take profit automáticos.",
-    link: "/orders/oco",
-  },
-  {
-    icon: <LayoutDashboard size={32} />,
-    title: "Gerenciar Bots",
-    description:
-      "Execute e monitore bots automáticos com estratégias personalizadas.",
-    link: "/strategies",
-  },
-  {
-    icon: <User size={32} />,
-    title: "Dashboard",
-    description:
-      "Acompanhe seu portfólio, saldo e estratégias em tempo real.",
-    link: "/account",
-  },
-];
-
 export default function HomePage() {
+  const { user, logout } = useAuth();
+  const [showModal, setShowModal] = useState(false);
+
+  const features = [
+    !user && {
+      icon: <LogIn size={32} />,
+      title: "Login",
+      description: "Autentique-se com seu e-mail e senha para acessar o sistema.",
+      action: () => setShowModal(true),
+    },
+    !user && {
+      icon: <Lock size={32} />,
+      title: "Registro",
+      description: "Crie sua conta fornecendo e-mail, senha e chaves da Binance.",
+      action: () => setShowModal(true),
+    },
+    user && {
+      icon: <BarChart size={32} />,
+      title: "Mercado em Tempo Real",
+      description: "Visualize preços, candles e ordens com gráficos dinâmicos.",
+      link: "/market",
+    },
+    user && {
+      icon: <ShoppingCart size={32} />,
+      title: "Ordens Comuns",
+      description: "Envie ordens simples com preenchimento imediato e histórico de execução.",
+      link: "/orders/standard",
+    },
+    user && {
+      icon: <ShoppingCart size={32} />,
+      title: "Ordens OCO",
+      description: "Envie ordens OCO com stop loss e take profit automáticos.",
+      link: "/orders/oco",
+    },
+    user && {
+      icon: <LayoutDashboard size={32} />,
+      title: "Gerenciar Bots",
+      description: "Execute e monitore bots automáticos com estratégias personalizadas.",
+      link: "/strategies",
+    },
+    user && {
+      icon: <User size={32} />,
+      title: "Dashboard",
+      description: "Acompanhe seu portfólio, saldo e estratégias em tempo real.",
+      link: "/account",
+    },
+  ].filter(Boolean);
+
   return (
     <Wrapper>
       <motion.h1
@@ -152,6 +195,15 @@ export default function HomePage() {
         execução de ordens e gráficos em tempo real.
       </motion.p>
 
+      {user && (
+        <div className="auth-header">
+          <span>Bem-vindo, {user.username}</span>
+          <button onClick={logout} className="logout-btn">
+            <LogOut size={18} style={{ marginRight: 4 }} /> Logout
+          </button>
+        </div>
+      )}
+
       <div className="features">
         {features.map((feature, idx) => (
           <motion.div
@@ -167,7 +219,11 @@ export default function HomePage() {
               <h3>{feature.title}</h3>
             </div>
             <p>{feature.description}</p>
-            <Link to={feature.link}>Acessar →</Link>
+            {feature.link ? (
+              <a className="link" href={feature.link}>Acessar →</a>
+            ) : (
+              <span className="link" onClick={feature.action}>Acessar →</span>
+            )}
           </motion.div>
         ))}
       </div>
@@ -175,6 +231,8 @@ export default function HomePage() {
       <footer>
         Powered by Binance Testnet · Developed by Darlan Noetzold
       </footer>
+
+      {showModal && <AuthModal onClose={() => setShowModal(false)} />}
     </Wrapper>
   );
 }
