@@ -1,42 +1,38 @@
 import argparse
-import subprocess
+import importlib
+import requests
 import sys
-import os
 
-def main():
-    parser = argparse.ArgumentParser(description='Run crypto strategy bot')
-    parser.add_argument('--strategy', required=True, help='Strategy name to run')
-    parser.add_argument('--symbol', required=True, help='Symbol to analyze')
-    parser.add_argument('--interval', required=False, help='Interval for candles')  # <-- AQUI
-
-    args = parser.parse_args()
-
-    strategy_script = os.path.join(os.path.dirname(__file__), f"{args.strategy}.py")
-
-    if not os.path.exists(strategy_script):
-        print(f"Strategy script '{args.strategy}.py' not found in strategies folder.")
+def get_candle_data(symbol, interval, limit=100):
+    try:
+        response = requests.get(
+            f"http://localhost:8080/api/market/candles",
+            params={"symbol": symbol, "interval": interval, "limit": limit},
+            headers={"X-BINANCE-ENV": "TESTNET"}  # ou PRODUCTION conforme o front
+        )
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        print(f"Erro ao obter dados da API: {e}")
         sys.exit(1)
 
-    command = ['python', strategy_script, '--symbol', args.symbol]
-    if args.interval:
-        command += ['--interval', args.interval]
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--strategy", required=True)
+    parser.add_argument("--symbol", default="BTCUSDT")
+    parser.add_argument("--interval", default="1m")
+    args = parser.parse_args()
 
-    print(f"Executing strategy: {args.strategy} for symbol {args.symbol}")
-    print(f"Command: {' '.join(command)}")
-
-    process = subprocess.Popen(
-        command,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True
-    )
+    print(f"Executando estratégia: {args.strategy}")
+    candles = get_candle_data(args.symbol, args.interval)
 
     try:
-        for line in process.stdout:
-            print(line, end='')
-    except KeyboardInterrupt:
-        print("Stopping strategy execution.")
-        process.terminate()
+        strategy_module = importlib.import_module(args.strategy)
+        strategy_module.run(candles)
+    except ModuleNotFoundError:
+        print(f"Estratégia '{args.strategy}' não encontrada.")
+    except AttributeError:
+        print(f"Estratégia '{args.strategy}' não possui função 'run'.")
 
 if __name__ == "__main__":
     main()
