@@ -1,14 +1,17 @@
 package tech.noetzold.crypto_bot_backend.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.concurrent.DelegatingSecurityContextRunnable;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.FluxSink;
+import tech.noetzold.crypto_bot_backend.context.BinanceEnvironmentContext;
+import tech.noetzold.crypto_bot_backend.enums.BinanceEnvironment;
+import tech.noetzold.crypto_bot_backend.model.User;
+import tech.noetzold.crypto_bot_backend.strategy.BaseStrategy;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -17,110 +20,150 @@ import java.util.stream.Collectors;
 @Service
 public class StrategyRunnerService {
 
-    private static final Path BASE_DIR = Paths.get(System.getProperty("user.dir")).getParent();
-    private static final Path STRATEGY_FOLDER = BASE_DIR.resolve("strategies");
+    private final Map<String, BaseStrategy> strategyBeans;
     private final ExecutorService executor = Executors.newCachedThreadPool();
     private final Map<String, Future<?>> runningStrategies = new ConcurrentHashMap<>();
+    private final Map<String, FluxSink<String>> logSubscribers = new ConcurrentHashMap<>();
+    private final UserService userService;
+
+    public StrategyRunnerService(List<BaseStrategy> strategyBeanList, UserService userService) {
+        this.userService = userService;
+        this.strategyBeans = strategyBeanList.stream()
+                .collect(Collectors.toMap(
+                        bean -> bean.getClass().getAnnotation(Component.class).value(),
+                        bean -> bean
+                ));
+    }
 
     public List<String> listAvailableStrategies() {
-        File folder = STRATEGY_FOLDER.toFile();
-        if (!folder.exists() || !folder.isDirectory()) {
-            log.warn("\uD83D\uDCC1 Pasta de estratégias não encontrada: {}", STRATEGY_FOLDER);
-            return Collections.emptyList();
-        }
-
-        return Arrays.stream(Objects.requireNonNull(folder.listFiles()))
-                .filter(file -> file.getName().endsWith(".py"))
-                .map(file -> file.getName().replace(".py", ""))
-                .collect(Collectors.toList());
+        return new ArrayList<>(strategyBeans.keySet());
     }
 
     public String runStrategy(String strategyName, Map<String, String> params) {
-        Path mainScriptPath = STRATEGY_FOLDER.resolve("main.py");
+        BaseStrategy strategy = strategyBeans.get(strategyName);
+        if (strategy == null) {
+            return "❌ Estratégia não encontrada: " + strategyName;
+        }
 
-        List<String> command = new ArrayList<>();
-        command.add("python");
-        command.add(mainScriptPath.toAbsolutePath().toString());
-        command.add("--strategy=" + strategyName);
-        params.forEach((key, value) -> command.add("--" + key + "=" + value));
-
-        return executeCommand(command);
-    }
-
-    public String runCustomScript(String code, Map<String, String> params) {
         try {
-            String filename = "custom_strategy_" + UUID.randomUUID() + ".py";
-            Path scriptPath = STRATEGY_FOLDER.resolve(filename);
-            Files.writeString(scriptPath, code);
+            User user = getAuthenticatedUser();
+            String apiKey = getApiKey(user);
+            String secretKey = getSecretKey(user);
 
-            List<String> command = new ArrayList<>();
-            command.add("python");
-            command.add(scriptPath.toAbsolutePath().toString());
-            params.forEach((key, value) -> command.add("--" + key + "=" + value));
+            log.info("🚀 Executando estratégia: {} com usuário {}", strategyName, user.getEmail());
+            return strategy.run(params, apiKey, secretKey);
 
-            String output = executeCommand(command);
-            Files.deleteIfExists(scriptPath);
-
-            return output;
         } catch (Exception e) {
-            log.error("❌ Erro ao executar script customizado: {}", e.getMessage(), e);
-            return "Erro ao executar script customizado: " + e.getMessage();
+            log.error("❌ Erro ao obter usuário autenticado ou executar estratégia", e);
+            return "Erro na execução da estratégia: " + e.getMessage();
         }
     }
 
     public String runStrategyAsync(String strategyName, Map<String, String> params) {
         if (runningStrategies.containsKey(strategyName)) {
-            return "Estratégia já está em execução.";
+            return "⚠️ Estratégia já está em execução: " + strategyName;
         }
 
-        Future<?> future = executor.submit(() -> {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        long interval = getIntervalInMillis(params.getOrDefault("interval", "60"));
+
+        Runnable task = () -> {
             try {
+                SecurityContextHolder.setContext(securityContext);
+
                 while (!Thread.currentThread().isInterrupted()) {
-                    runStrategy(strategyName, params);
-                    Thread.sleep(60000); // executa a cada 60 segundos
+                    publishLog(strategyName, "⏳ Executando estratégia '" + strategyName + "'...");
+                    String result = runStrategy(strategyName, params);
+                    publishLog(strategyName, "✅ Resultado: " + result);
+                    Thread.sleep(interval);
                 }
+
             } catch (InterruptedException e) {
-                log.info("\uD83D\uDEAB Execução da estratégia '{}' foi interrompida.", strategyName);
+                publishLog(strategyName, "🛑 Estratégia '" + strategyName + "' interrompida.");
                 Thread.currentThread().interrupt();
             } catch (Exception e) {
-                log.error("❌ Erro durante execução da estratégia '{}': {}", strategyName, e.getMessage(), e);
+                log.error("❌ Erro na execução da estratégia: {}", strategyName, e);
+                publishLog(strategyName, "❌ Erro: " + e.getMessage());
+            } finally {
+                SecurityContextHolder.clearContext();
             }
-        });
+        };
 
+        Runnable securedTask = DelegatingSecurityContextRunnable.create(task, securityContext);
+        Future<?> future = executor.submit(securedTask);
         runningStrategies.put(strategyName, future);
-        return "Execução da estratégia iniciada: " + strategyName;
+        return "🟢 Execução da estratégia iniciada: " + strategyName;
     }
 
     public String stopStrategy(String strategyName) {
         Future<?> future = runningStrategies.remove(strategyName);
         if (future != null) {
             future.cancel(true);
-            return "Execução da estratégia interrompida: " + strategyName;
+            publishLog(strategyName, "🛑 Estratégia parada: " + strategyName);
+            return "🛑 Estratégia parada: " + strategyName;
         } else {
-            return "Estratégia não estava em execução: " + strategyName;
+            return "⚠️ Estratégia não estava em execução: " + strategyName;
         }
     }
 
-    private String executeCommand(List<String> command) {
-        try {
-            log.info("\uD83D\uDE80 Executando comando: {}", String.join(" ", command));
-            ProcessBuilder pb = new ProcessBuilder(command);
-            pb.redirectErrorStream(true);
-            Process process = pb.start();
+    public boolean isStrategyRegistered(String strategyName) {
+        return strategyBeans.containsKey(strategyName);
+    }
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String output = reader.lines().collect(Collectors.joining("\n"));
+    // ========= 🔔 WebSocket Log Broadcasting ========= //
 
-            int exitCode = process.waitFor();
-            if (exitCode != 0) {
-                log.error("❌ Código de saída: {}", exitCode);
-                return "Erro na execução do script. Código de saída: " + exitCode + "\n" + output;
-            }
+    public void registerLogSubscriber(String strategyName, FluxSink<String> sink) {
+        logSubscribers.put(strategyName, sink);
+        publishLog(strategyName, "📡 Conectado para receber logs da estratégia '" + strategyName + "'");
+    }
 
-            return output;
-        } catch (Exception e) {
-            log.error("❌ Erro ao executar comando: {}", e.getMessage(), e);
-            return "Erro na execução: " + e.getMessage();
+    public void unregisterLogSubscriber(String strategyName) {
+        logSubscribers.remove(strategyName);
+    }
+
+    private void publishLog(String strategyName, String logMessage) {
+        log.info("[{}] {}", strategyName, logMessage);
+        FluxSink<String> sink = logSubscribers.get(strategyName);
+        if (sink != null) {
+            sink.next(logMessage);
         }
+    }
+
+    private long getIntervalInMillis(String intervalParam) {
+        try {
+            if (intervalParam.endsWith("s")) {
+                return Long.parseLong(intervalParam.replace("s", "")) * 1000L;
+            } else if (intervalParam.endsWith("m")) {
+                return Long.parseLong(intervalParam.replace("m", "")) * 60_000L;
+            } else if (intervalParam.endsWith("h")) {
+                return Long.parseLong(intervalParam.replace("h", "")) * 60 * 60_000L;
+            } else {
+                return Long.parseLong(intervalParam) * 1000L;
+            }
+        } catch (NumberFormatException e) {
+            return 60_000L; // fallback
+        }
+    }
+
+    private User getAuthenticatedUser() {
+        var context = SecurityContextHolder.getContext();
+        if (context == null || context.getAuthentication() == null || context.getAuthentication().getName() == null) {
+            throw new IllegalStateException("Usuário não autenticado no contexto");
+        }
+
+        String email = context.getAuthentication().getName();
+        return (User) userService.loadUserByUsername(email);
+    }
+
+    private String getApiKey(User user) {
+        return BinanceEnvironmentContext.get() == BinanceEnvironment.PRODUCTION
+                ? user.getProductionApiKey()
+                : user.getTestnetApiKey();
+    }
+
+    private String getSecretKey(User user) {
+        return BinanceEnvironmentContext.get() == BinanceEnvironment.PRODUCTION
+                ? user.getProductionSecretKey()
+                : user.getTestnetSecretKey();
     }
 }
