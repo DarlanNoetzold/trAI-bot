@@ -10,6 +10,7 @@ import {
   LogIn,
   LogOut,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import AuthModal from "../Auth/AuthPage";
 import { useAuth } from "../../contexts/AuthContext";
@@ -220,7 +221,7 @@ export default function HomePage() {
             </div>
             <p>{feature.description}</p>
             {feature.link ? (
-              <a className="link" href={feature.link}>Acessar →</a>
+              <Link className="link" to={feature.link}>Acessar →</Link>
             ) : (
               <span className="link" onClick={feature.action}>Acessar →</span>
             )}
