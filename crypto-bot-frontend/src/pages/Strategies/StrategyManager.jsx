@@ -82,20 +82,42 @@ const OutputBox = styled.pre`
 const Status = styled.div`
   margin-top: 1rem;
   padding: 0.5rem 1rem;
-  border-left: 4px solid ${(props) => (props.active ? '#8fd48f' : '#bd5d5d')};
-  background: ${(props) => (props.active ? '#1d2e1d' : '#2a1818')};
-  color: ${(props) => (props.active ? '#b7ffb7' : '#ffbaba')};
+  border-left: 4px solid;
+  border-left-color: ${(props) => (props.$active ? '#8fd48f' : '#bd5d5d')};
+  background: ${(props) => (props.$active ? '#1d2e1d' : '#2a1818')};
+  color: ${(props) => (props.$active ? '#b7ffb7' : '#ffbaba')};
   font-size: 0.9rem;
   font-weight: bold;
 `;
 
 function StrategyManager() {
   const [strategies, setStrategies] = useState([]);
-  const [selectedStrategy, setSelectedStrategy] = useState('');
+  const [selectedStrategy, setSelectedStrategy] = useState(localStorage.getItem('selected_strategy') || '');
   const [params, setParams] = useState({ symbol: 'BTCUSDT', interval: '1m' });
   const [customCode, setCustomCode] = useState(`# Exemplo de template Python\n\ndef main(symbol, interval):\n    # lógica da estratégia aqui\n    print(f"Rodando para {symbol} com intervalo {interval}")`);
   const [result, setResult] = useState('');
-  const [isRunning, setIsRunning] = useState(false);
+  const [isRunning, setIsRunning] = useState(localStorage.getItem('bot_running') === 'true');
+  const [statusMessage, setStatusMessage] = useState('');
+  const [liveLogs, setLiveLogs] = useState([]);
+  const [ws, setWs] = useState(null);
+
+  useEffect(() => {
+    fetchStrategies();
+  }, []);
+
+  useEffect(() => {
+    let interval;
+    if (isRunning) {
+      let dots = '';
+      interval = setInterval(() => {
+        dots = dots.length >= 3 ? '' : dots + '.';
+        setStatusMessage(`Executando${dots}`);
+      }, 1000);
+    } else {
+      setStatusMessage('');
+    }
+    return () => clearInterval(interval);
+  }, [isRunning]);
 
   const fetchStrategies = async () => {
     try {
@@ -103,6 +125,7 @@ function StrategyManager() {
       setStrategies(res);
     } catch (err) {
       console.error('Erro ao carregar estratégias:', err);
+      setResult('❌ Erro ao buscar estratégias');
     }
   };
 
@@ -112,6 +135,7 @@ function StrategyManager() {
       setResult(res);
     } catch (err) {
       console.error(err);
+      setResult('❌ Erro ao executar uma vez');
     }
   };
 
@@ -120,18 +144,56 @@ function StrategyManager() {
       const res = await runStrategy(selectedStrategy, params);
       setResult(res);
       setIsRunning(true);
+      localStorage.setItem('bot_running', 'true');
+      localStorage.setItem('selected_strategy', selectedStrategy);
+  
+      const authUser = JSON.parse(localStorage.getItem('auth_user'));
+      const token = authUser?.token;
+  
+      if (!token) {
+        setResult('❌ Token não encontrado. Faça login novamente.');
+        return;
+      }
+  
+      const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+      const socket = new WebSocket(
+        `${protocol}://localhost:8080/ws/strategy-logs?strategyName=${selectedStrategy}&token=${token}`
+      );
+  
+      socket.onmessage = (event) => {
+        setLiveLogs((prev) => [...prev.slice(-200), event.data]);
+      };
+  
+      socket.onclose = () => {
+        console.log('🔌 WebSocket fechado');
+      };
+  
+      socket.onerror = (err) => {
+        console.error('❌ WebSocket error', err);
+      };
+  
+      setWs(socket);
     } catch (err) {
       console.error(err);
+      setResult('❌ Erro ao iniciar o bot');
     }
   };
+  
 
   const handleStopBot = async () => {
     try {
       const res = await stopStrategy(selectedStrategy);
       setResult(res);
       setIsRunning(false);
+      localStorage.removeItem('bot_running');
+      localStorage.removeItem('selected_strategy');
+      if (ws) {
+        ws.close();
+        setWs(null);
+      }
     } catch (err) {
       console.error(err);
+      setResult('❌ Erro ao parar o bot');
     }
   };
 
@@ -141,12 +203,9 @@ function StrategyManager() {
       setResult(res);
     } catch (err) {
       console.error(err);
+      setResult('❌ Erro ao executar código customizado');
     }
   };
-
-  useEffect(() => {
-    fetchStrategies();
-  }, []);
 
   return (
     <Container>
@@ -186,8 +245,8 @@ function StrategyManager() {
         <Button onClick={handleStopBot}>Parar Bot</Button>
       </div>
 
-      <Status active={isRunning}>
-        Bot {isRunning ? 'Rodando' : 'Parado'}
+      <Status $active={isRunning} aria-live="polite" data-active={isRunning}>
+        Bot {isRunning ? statusMessage : 'Parado'}
       </Status>
 
       <div style={{ marginTop: '2rem' }}>
@@ -205,6 +264,17 @@ function StrategyManager() {
         <div>
           <Label>Saída:</Label>
           <OutputBox>{result}</OutputBox>
+        </div>
+      )}
+
+      {liveLogs.length > 0 && (
+        <div style={{ marginTop: '2rem' }}>
+          <Label>Logs em Tempo Real:</Label>
+          <OutputBox style={{ maxHeight: '300px', overflowY: 'auto' }}>
+            {liveLogs.map((log, idx) => (
+              <div key={idx}>{log}</div>
+            ))}
+          </OutputBox>
         </div>
       )}
     </Container>
