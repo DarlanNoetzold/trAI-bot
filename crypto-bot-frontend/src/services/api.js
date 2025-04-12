@@ -15,15 +15,17 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-export default api;
-
-
 api.interceptors.request.use((config) => {
   const env = localStorage.getItem('binanceEnv') || 'TESTNET';
   const user = JSON.parse(localStorage.getItem('auth_user'));
+
   if (user?.token) {
     config.headers['Authorization'] = `Bearer ${user.token}`;
   }
+
   config.headers['X-BINANCE-ENV'] = env;
   return config;
 });
+
+
+export default api;
