@@ -6,6 +6,7 @@ import {
   runStrategy,
   stopStrategy,
   runCustomStrategy,
+  fetchStrategyLogs,
 } from '../../services/strategyService';
 
 const Container = styled.div`
@@ -90,6 +91,12 @@ const Status = styled.div`
   font-weight: bold;
 `;
 
+const Pagination = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+`;
+
 function StrategyManager() {
   const [strategies, setStrategies] = useState([]);
   const [selectedStrategy, setSelectedStrategy] = useState(localStorage.getItem('selected_strategy') || '');
@@ -98,8 +105,9 @@ function StrategyManager() {
   const [result, setResult] = useState('');
   const [isRunning, setIsRunning] = useState(localStorage.getItem('bot_running') === 'true');
   const [statusMessage, setStatusMessage] = useState('');
-  const [liveLogs, setLiveLogs] = useState([]);
-  const [ws, setWs] = useState(null);
+  const [logs, setLogs] = useState([]);
+  const [page, setPage] = useState(0);
+  const [pageSize] = useState(20);
 
   useEffect(() => {
     fetchStrategies();
@@ -108,14 +116,17 @@ function StrategyManager() {
   useEffect(() => {
     let interval;
     if (isRunning) {
-      let dots = '';
-      interval = setInterval(() => {
-        dots = dots.length >= 3 ? '' : dots + '.';
-        setStatusMessage(`Executando${dots}`);
-      }, 1000);
-    } else {
-      setStatusMessage('');
+      interval = setInterval(() => fetchLogs(), 3000);
     }
+    return () => clearInterval(interval);
+  }, [isRunning, selectedStrategy, page]);
+
+  useEffect(() => {
+    let dots = '';
+    const interval = setInterval(() => {
+      dots = dots.length >= 3 ? '' : dots + '.';
+      setStatusMessage(`Executando${dots}`);
+    }, 1000);
     return () => clearInterval(interval);
   }, [isRunning]);
 
@@ -126,6 +137,15 @@ function StrategyManager() {
     } catch (err) {
       console.error('Erro ao carregar estratégias:', err);
       setResult('❌ Erro ao buscar estratégias');
+    }
+  };
+
+  const fetchLogs = async () => {
+    try {
+      const res = await fetchStrategyLogs(selectedStrategy, page, pageSize);
+      setLogs(res.content);
+    } catch (err) {
+      console.error('Erro ao buscar logs:', err);
     }
   };
 
@@ -146,39 +166,11 @@ function StrategyManager() {
       setIsRunning(true);
       localStorage.setItem('bot_running', 'true');
       localStorage.setItem('selected_strategy', selectedStrategy);
-  
-      const authUser = JSON.parse(localStorage.getItem('auth_user'));
-      const token = authUser?.token;
-  
-      if (!token) {
-        setResult('❌ Token não encontrado. Faça login novamente.');
-        return;
-      }
-  
-      const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-      const socket = new WebSocket(
-        `${protocol}://localhost:8080/ws/strategy-logs?strategyName=${selectedStrategy}&token=${token}`
-      );
-  
-      socket.onmessage = (event) => {
-        setLiveLogs((prev) => [...prev.slice(-200), event.data]);
-      };
-  
-      socket.onclose = () => {
-        console.log('🔌 WebSocket fechado');
-      };
-  
-      socket.onerror = (err) => {
-        console.error('❌ WebSocket error', err);
-      };
-  
-      setWs(socket);
     } catch (err) {
       console.error(err);
       setResult('❌ Erro ao iniciar o bot');
     }
   };
-  
 
   const handleStopBot = async () => {
     try {
@@ -187,10 +179,6 @@ function StrategyManager() {
       setIsRunning(false);
       localStorage.removeItem('bot_running');
       localStorage.removeItem('selected_strategy');
-      if (ws) {
-        ws.close();
-        setWs(null);
-      }
     } catch (err) {
       console.error(err);
       setResult('❌ Erro ao parar o bot');
@@ -218,25 +206,16 @@ function StrategyManager() {
         <Select value={selectedStrategy} onChange={(e) => setSelectedStrategy(e.target.value)}>
           <option value="">-- selecione --</option>
           {strategies.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
+            <option key={s} value={s}>{s}</option>
           ))}
         </Select>
       </div>
 
       <div>
         <Label>Símbolo:</Label>
-        <Input
-          value={params.symbol}
-          onChange={(e) => setParams({ ...params, symbol: e.target.value })}
-        />
-
+        <Input value={params.symbol} onChange={(e) => setParams({ ...params, symbol: e.target.value })} />
         <Label>Intervalo:</Label>
-        <Input
-          value={params.interval}
-          onChange={(e) => setParams({ ...params, interval: e.target.value })}
-        />
+        <Input value={params.interval} onChange={(e) => setParams({ ...params, interval: e.target.value })} />
       </div>
 
       <div style={{ margin: '1.5rem 0' }}>
@@ -245,19 +224,12 @@ function StrategyManager() {
         <Button onClick={handleStopBot}>Parar Bot</Button>
       </div>
 
-      <Status $active={isRunning} aria-live="polite" data-active={isRunning}>
-        Bot {isRunning ? statusMessage : 'Parado'}
-      </Status>
+      <Status $active={isRunning}>{isRunning ? statusMessage : 'Bot Parado'}</Status>
 
       <div style={{ marginTop: '2rem' }}>
         <Label>Código Python Customizado:</Label>
-        <TextArea
-          value={customCode}
-          onChange={(e) => setCustomCode(e.target.value)}
-        />
-        <Button style={{ marginTop: '1rem' }} onClick={handleRunCustom}>
-          Executar Código
-        </Button>
+        <TextArea value={customCode} onChange={(e) => setCustomCode(e.target.value)} />
+        <Button style={{ marginTop: '1rem' }} onClick={handleRunCustom}>Executar Código</Button>
       </div>
 
       {result && (
@@ -267,14 +239,20 @@ function StrategyManager() {
         </div>
       )}
 
-      {liveLogs.length > 0 && (
+      {logs.length > 0 && (
         <div style={{ marginTop: '2rem' }}>
-          <Label>Logs em Tempo Real:</Label>
+          <Label>Logs:</Label>
           <OutputBox style={{ maxHeight: '300px', overflowY: 'auto' }}>
-            {liveLogs.map((log, idx) => (
-              <div key={idx}>{log}</div>
+            {logs.map((log, idx) => (
+              <div key={idx}>[{new Date(log.timestamp).toLocaleTimeString()}] {log.message}</div>
             ))}
           </OutputBox>
+
+          <Pagination>
+            <Button onClick={() => setPage((p) => Math.max(0, p - 1))}>Página Anterior</Button>
+            <span style={{ alignSelf: 'center' }}>Página {page + 1}</span>
+            <Button onClick={() => setPage((p) => p + 1)}>Próxima Página</Button>
+          </Pagination>
         </div>
       )}
     </Container>
