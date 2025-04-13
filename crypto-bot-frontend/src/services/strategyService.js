@@ -24,3 +24,14 @@ export const runCustomStrategy = async (code) => {
   const response = await api.post('/custom/strategy', { code });
   return response.data;
 };
+
+export const fetchStrategyLogs = async (strategyName, page = 0, size = 20) => {
+  const response = await api.get(`/logs`, {
+    params: {
+      strategyName: strategyName,
+      page,
+      size
+    }
+  });
+  return response.data;
+};
