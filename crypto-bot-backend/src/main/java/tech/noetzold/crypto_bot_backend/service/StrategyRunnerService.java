@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.FluxSink;
 import tech.noetzold.crypto_bot_backend.context.BinanceEnvironmentContext;
 import tech.noetzold.crypto_bot_backend.enums.BinanceEnvironment;
+import tech.noetzold.crypto_bot_backend.model.StrategyExecutionLog;
 import tech.noetzold.crypto_bot_backend.model.User;
+import tech.noetzold.crypto_bot_backend.repository.StrategyExecutionLogRepository;
 import tech.noetzold.crypto_bot_backend.strategy.BaseStrategy;
 
 import java.util.*;
@@ -25,9 +27,14 @@ public class StrategyRunnerService {
     private final Map<String, Future<?>> runningStrategies = new ConcurrentHashMap<>();
     private final Map<String, FluxSink<String>> logSubscribers = new ConcurrentHashMap<>();
     private final UserService userService;
+    private final StrategyExecutionLogRepository strategyExecutionLogRepository;
 
-    public StrategyRunnerService(List<BaseStrategy> strategyBeanList, UserService userService) {
+
+    public StrategyRunnerService(List<BaseStrategy> strategyBeanList,
+                                 UserService userService,
+                                 StrategyExecutionLogRepository strategyExecutionLogRepository) {
         this.userService = userService;
+        this.strategyExecutionLogRepository = strategyExecutionLogRepository;
         this.strategyBeans = strategyBeanList.stream()
                 .collect(Collectors.toMap(
                         bean -> bean.getClass().getAnnotation(Component.class).value(),
@@ -110,8 +117,6 @@ public class StrategyRunnerService {
         return strategyBeans.containsKey(strategyName);
     }
 
-    // ========= 🔔 WebSocket Log Broadcasting ========= //
-
     public void registerLogSubscriber(String strategyName, FluxSink<String> sink) {
         logSubscribers.put(strategyName, sink);
         publishLog(strategyName, "📡 Conectado para receber logs da estratégia '" + strategyName + "'");
@@ -126,6 +131,18 @@ public class StrategyRunnerService {
         FluxSink<String> sink = logSubscribers.get(strategyName);
         if (sink != null) {
             sink.next(logMessage);
+        }
+
+        // Salva no banco
+        try {
+            User user = getAuthenticatedUser();
+            StrategyExecutionLog logEntry = new StrategyExecutionLog();
+            logEntry.setStrategyName(strategyName);
+            logEntry.setMessage(logMessage);
+            logEntry.setUser(user);
+            strategyExecutionLogRepository.save(logEntry);
+        } catch (Exception e) {
+            log.warn("⚠️ Não foi possível salvar log no banco: {}", e.getMessage());
         }
     }
 
