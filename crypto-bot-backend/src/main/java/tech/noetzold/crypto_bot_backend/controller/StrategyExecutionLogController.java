@@ -32,8 +32,8 @@ public class StrategyExecutionLogController {
         PageRequest pageRequest = PageRequest.of(page, size);
 
         Page<StrategyExecutionLog> logs = (strategyName == null || strategyName.isBlank())
-                ? logRepository.findByUserId(user.getId(), pageRequest)
-                : logRepository.findByUserIdAndStrategyName(user.getId(), strategyName, pageRequest);
+                ? logRepository.findByUserIdOrderByTimestampDesc(user.getId(), pageRequest)
+                : logRepository.findByUserIdAndStrategyNameOrderByTimestampDesc(user.getId(), strategyName, pageRequest);
 
         return ResponseEntity.ok(logs);
     }
