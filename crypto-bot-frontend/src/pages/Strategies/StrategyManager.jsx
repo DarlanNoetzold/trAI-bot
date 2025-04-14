@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import styled from 'styled-components';
 import {
   listStrategies,
@@ -115,6 +115,20 @@ function StrategyManager() {
     fetchStrategies();
   }, []);
 
+  const fetchLogs = useCallback(async () => {
+    try {
+      const res = await fetchStrategyLogs(selectedStrategy, page, pageSize);
+      setLogs(res.content);
+      setTotalPages(res.totalPages);
+    } catch (err) {
+      console.error('Erro ao buscar logs:', err);
+    }
+  }, [selectedStrategy, page, pageSize]);
+
+  useEffect(() => {
+    if (selectedStrategy) fetchLogs();
+  }, [page, selectedStrategy, fetchLogs]);
+
   useEffect(() => {
     let dots = '';
     const interval = setInterval(() => {
@@ -131,16 +145,6 @@ function StrategyManager() {
     } catch (err) {
       console.error('Erro ao carregar estratégias:', err);
       setResult('❌ Erro ao buscar estratégias');
-    }
-  };
-
-  const fetchLogs = async () => {
-    try {
-      const res = await fetchStrategyLogs(selectedStrategy, page, pageSize);
-      setLogs(res.content);
-      setTotalPages(res.totalPages);
-    } catch (err) {
-      console.error('Erro ao buscar logs:', err);
     }
   };
 
@@ -187,6 +191,12 @@ function StrategyManager() {
     } catch (err) {
       console.error(err);
       setResult('❌ Erro ao executar código customizado');
+    }
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 0 && newPage < totalPages) {
+      setPage(newPage);
     }
   };
 
@@ -248,13 +258,13 @@ function StrategyManager() {
           </OutputBox>
 
           <Pagination>
-            <Button onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0}>Anterior</Button>
+            <Button onClick={() => handlePageChange(page - 1)} disabled={page === 0}>Anterior</Button>
             {Array.from({ length: totalPages }, (_, i) => (
-              <Button key={i} onClick={() => setPage(i)} disabled={page === i}>
+              <Button key={i} onClick={() => handlePageChange(i)} disabled={page === i}>
                 {i + 1}
               </Button>
             ))}
-            <Button onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1}>Próxima</Button>
+            <Button onClick={() => handlePageChange(page + 1)} disabled={page >= totalPages - 1}>Próxima</Button>
           </Pagination>
         </div>
       )}
