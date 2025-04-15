@@ -18,14 +18,27 @@ public class CustomStrategyController {
     private final CustomStrategyRepository repository;
 
     @PostMapping
-    public ResponseEntity<CustomStrategy> createStrategy(@RequestBody CustomStrategyDTO dto) {
-        CustomStrategy strategy = new CustomStrategy();
-        BeanUtils.copyProperties(dto, strategy);
-        return ResponseEntity.ok(repository.save(strategy));
+    public ResponseEntity<?> createStrategy(@RequestBody CustomStrategyDTO dto) {
+        CustomStrategy strategy = convertDtoToEntity(dto);
+        repository.save(strategy);
+        return ResponseEntity.ok("Criada com sucesso");
     }
+
 
     @GetMapping
     public List<CustomStrategy> listStrategies() {
         return repository.findAll();
+    }
+
+    public CustomStrategy convertDtoToEntity(CustomStrategyDTO dto) {
+        CustomStrategy strategy = new CustomStrategy();
+        strategy.setUserId(dto.getUserId());
+        strategy.setName(dto.getName());
+        strategy.setSymbol(dto.getSymbol());
+        strategy.setInterval(dto.getInterval());
+        strategy.setPosition(dto.getPosition());
+        strategy.setIndicators(dto.getIndicators());
+        strategy.setStrategyCode(dto.getStrategyCode());
+        return strategy;
     }
 }
