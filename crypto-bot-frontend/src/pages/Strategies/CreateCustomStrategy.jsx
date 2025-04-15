@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import api from '../../services/api';
 
-
 const Container = styled.div`
   font-family: 'Courier New', monospace;
   background: #0e150e;
@@ -81,23 +80,47 @@ const CreateCustomStrategy = () => {
     description: '',
     symbol: 'BTCUSDT',
     interval: '1m',
-    limit: 100,
-    buyThreshold: 30,
-    sellThreshold: 70,
+    position: 'LONG',
     indicatorType: 'RSI',
-    customLogicCode: ''
+    period: 14,
+    entryCondition: '<',
+    entryValue: '30',
+    exitCondition: '>',
+    exitValue: '70',
+    strategyCode: ''
   });
 
   const [response, setResponse] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setStrategy((prev) => ({ ...prev, [name]: value }));
+    setStrategy((prev) => ({
+      ...prev,
+      [name]: name === 'period' ? parseInt(value) : value,
+    }));
   };
 
   const handleSubmit = async () => {
     try {
-      const res = await api.post('/custom-strategies', strategy);
+      const payload = {
+        name: strategy.name,
+        symbol: strategy.symbol,
+        interval: strategy.interval,
+        position: strategy.position,
+        strategyCode: strategy.strategyCode,
+        indicators: [
+          {
+            type: strategy.indicatorType,
+            period: strategy.period,
+            entryCondition: strategy.entryCondition,
+            entryValue: strategy.entryValue,
+            exitCondition: strategy.exitCondition,
+            exitValue: strategy.exitValue
+          }
+        ]
+      };
+
+      const res = await api.post('/custom-strategies', payload);
       setResponse('✅ Estratégia criada com sucesso!');
     } catch (err) {
       console.error(err);
@@ -112,17 +135,17 @@ const CreateCustomStrategy = () => {
       <Label>Nome:</Label>
       <Input name="name" value={strategy.name} onChange={handleChange} />
 
-      <Label>Descrição:</Label>
-      <Input name="description" value={strategy.description} onChange={handleChange} />
-
       <Label>Símbolo:</Label>
       <Input name="symbol" value={strategy.symbol} onChange={handleChange} />
 
       <Label>Intervalo:</Label>
       <Input name="interval" value={strategy.interval} onChange={handleChange} />
 
-      <Label>Limite de candles:</Label>
-      <Input type="number" name="limit" value={strategy.limit} onChange={handleChange} />
+      <Label>Posição:</Label>
+      <Select name="position" value={strategy.position} onChange={handleChange}>
+        <option value="LONG">LONG</option>
+        <option value="SHORT">SHORT</option>
+      </Select>
 
       <Label>Indicador:</Label>
       <Select name="indicatorType" value={strategy.indicatorType} onChange={handleChange}>
@@ -131,14 +154,36 @@ const CreateCustomStrategy = () => {
         <option value="SMA">SMA</option>
       </Select>
 
-      <Label>Limiar de Compra:</Label>
-      <Input type="number" name="buyThreshold" value={strategy.buyThreshold} onChange={handleChange} />
+      <Label>Período:</Label>
+      <Input type="number" name="period" value={strategy.period} onChange={handleChange} />
 
-      <Label>Limiar de Venda:</Label>
-      <Input type="number" name="sellThreshold" value={strategy.sellThreshold} onChange={handleChange} />
+      <Label>Condição de Entrada:</Label>
+      <Select name="entryCondition" value={strategy.entryCondition} onChange={handleChange}>
+        <option value=">">{'>'}</option>
+        <option value="<">{'<'}</option>
+        <option value="==">{'=='}</option>
+      </Select>
+
+      <Label>Valor de Entrada:</Label>
+      <Input name="entryValue" value={strategy.entryValue} onChange={handleChange} />
+
+      <Label>Condição de Saída:</Label>
+      <Select name="exitCondition" value={strategy.exitCondition} onChange={handleChange}>
+        <option value=">">{'>'}</option>
+        <option value="<">{'<'}</option>
+        <option value="==">{'=='}</option>
+      </Select>
+
+      <Label>Valor de Saída:</Label>
+      <Input name="exitValue" value={strategy.exitValue} onChange={handleChange} />
 
       <Label>Lógica Customizada (opcional):</Label>
-      <TextArea name="customLogicCode" value={strategy.customLogicCode} onChange={handleChange} placeholder="def main():\n    # lógica customizada" />
+      <TextArea
+        name="strategyCode"
+        value={strategy.strategyCode}
+        onChange={handleChange}
+        placeholder="def main():\n    # lógica customizada"
+      />
 
       <Button onClick={handleSubmit}>Salvar Estratégia</Button>
 
