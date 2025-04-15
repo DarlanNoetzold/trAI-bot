@@ -9,6 +9,8 @@ import StrategyRunner from '../pages/Strategies/StrategyRunner';
 import AccountInfo from '../pages/Account/AccountInfo';
 import Home from '../pages/Dashboard/Home';
 import AuthPage from '../pages/Auth/AuthPage';
+import CreateCustomStrategy from '../pages/Strategies/CreateCustomStrategy';
+
 
 import { useAuth } from '../contexts/AuthContext';
 
@@ -52,6 +54,14 @@ const AppRouter = () => {
         element={
           <PrivateRoute>
             <StrategyManager />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/strategies/create"
+        element={
+          <PrivateRoute>
+            <CreateCustomStrategy />
           </PrivateRoute>
         }
       />
