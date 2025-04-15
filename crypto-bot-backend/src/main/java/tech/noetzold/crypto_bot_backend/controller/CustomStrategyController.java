@@ -1,7 +1,6 @@
 package tech.noetzold.crypto_bot_backend.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tech.noetzold.crypto_bot_backend.dto.CustomStrategyDTO;
