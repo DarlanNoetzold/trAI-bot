@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
+import api from '../../services/api';
+
 
 const Container = styled.div`
   font-family: 'Courier New', monospace;
@@ -96,7 +97,7 @@ const CreateCustomStrategy = () => {
 
   const handleSubmit = async () => {
     try {
-      const res = await axios.post('/api/custom-strategies', strategy);
+      const res = await api.post('/custom-strategies', strategy);
       setResponse('✅ Estratégia criada com sucesso!');
     } catch (err) {
       console.error(err);
