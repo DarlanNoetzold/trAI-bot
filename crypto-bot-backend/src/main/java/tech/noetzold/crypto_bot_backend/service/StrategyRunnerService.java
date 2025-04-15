@@ -9,8 +9,10 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.FluxSink;
 import tech.noetzold.crypto_bot_backend.context.BinanceEnvironmentContext;
 import tech.noetzold.crypto_bot_backend.enums.BinanceEnvironment;
+import tech.noetzold.crypto_bot_backend.model.CustomStrategy;
 import tech.noetzold.crypto_bot_backend.model.StrategyExecutionLog;
 import tech.noetzold.crypto_bot_backend.model.User;
+import tech.noetzold.crypto_bot_backend.repository.CustomStrategyRepository;
 import tech.noetzold.crypto_bot_backend.repository.StrategyExecutionLogRepository;
 import tech.noetzold.crypto_bot_backend.strategy.BaseStrategy;
 
@@ -28,13 +30,15 @@ public class StrategyRunnerService {
     private final Map<String, FluxSink<String>> logSubscribers = new ConcurrentHashMap<>();
     private final UserService userService;
     private final StrategyExecutionLogRepository strategyExecutionLogRepository;
-
+    private final CustomStrategyRepository customStrategyRepository;
 
     public StrategyRunnerService(List<BaseStrategy> strategyBeanList,
                                  UserService userService,
-                                 StrategyExecutionLogRepository strategyExecutionLogRepository) {
+                                 StrategyExecutionLogRepository strategyExecutionLogRepository,
+                                 CustomStrategyRepository customStrategyRepository) {
         this.userService = userService;
         this.strategyExecutionLogRepository = strategyExecutionLogRepository;
+        this.customStrategyRepository = customStrategyRepository;
         this.strategyBeans = strategyBeanList.stream()
                 .collect(Collectors.toMap(
                         bean -> bean.getClass().getAnnotation(Component.class).value(),
@@ -43,26 +47,43 @@ public class StrategyRunnerService {
     }
 
     public List<String> listAvailableStrategies() {
-        return new ArrayList<>(strategyBeans.keySet());
+        List<String> custom = customStrategyRepository.findAll()
+                .stream().map(CustomStrategy::getName).toList();
+        List<String> fixed = new ArrayList<>(strategyBeans.keySet());
+        fixed.addAll(custom);
+        return fixed;
     }
 
     public String runStrategy(String strategyName, Map<String, String> params) {
-        BaseStrategy strategy = strategyBeans.get(strategyName);
-        if (strategy == null) {
-            return "❌ Estratégia não encontrada: " + strategyName;
-        }
-
-        try {
-            User user = getAuthenticatedUser();
-            String apiKey = getApiKey(user);
-            String secretKey = getSecretKey(user);
-
-            log.info("🚀 Executando estratégia: {} com usuário {}", strategyName, user.getEmail());
-            return strategy.run(params, apiKey, secretKey);
-
-        } catch (Exception e) {
-            log.error("❌ Erro ao obter usuário autenticado ou executar estratégia", e);
-            return "Erro na execução da estratégia: " + e.getMessage();
+        if (strategyBeans.containsKey(strategyName)) {
+            BaseStrategy strategy = strategyBeans.get(strategyName);
+            try {
+                User user = getAuthenticatedUser();
+                String apiKey = getApiKey(user);
+                String secretKey = getSecretKey(user);
+                log.info("🚀 Executando estratégia fixa: {} com usuário {}", strategyName, user.getEmail());
+                return strategy.run(params, apiKey, secretKey);
+            } catch (Exception e) {
+                log.error("❌ Erro ao executar estratégia fixa", e);
+                return "Erro: " + e.getMessage();
+            }
+        } else {
+            Optional<CustomStrategy> customOpt = customStrategyRepository.findByName(strategyName);
+            if (customOpt.isPresent()) {
+                try {
+                    User user = getAuthenticatedUser();
+                    String apiKey = getApiKey(user);
+                    String secretKey = getSecretKey(user);
+                    CustomStrategy custom = customOpt.get();
+                    log.info("🚀 Executando estratégia customizada: {} para {}", strategyName, user.getEmail());
+                    return custom.execute(params, apiKey, secretKey);
+                } catch (Exception e) {
+                    log.error("❌ Erro ao executar estratégia customizada", e);
+                    return "Erro na custom strategy: " + e.getMessage();
+                }
+            } else {
+                return "❌ Estratégia não encontrada: " + strategyName;
+            }
         }
     }
 
@@ -114,7 +135,8 @@ public class StrategyRunnerService {
     }
 
     public boolean isStrategyRegistered(String strategyName) {
-        return strategyBeans.containsKey(strategyName);
+        return strategyBeans.containsKey(strategyName)
+                || customStrategyRepository.findByName(strategyName).isPresent();
     }
 
     public void registerLogSubscriber(String strategyName, FluxSink<String> sink) {
@@ -133,7 +155,6 @@ public class StrategyRunnerService {
             sink.next(logMessage);
         }
 
-        // Salva no banco
         try {
             User user = getAuthenticatedUser();
             StrategyExecutionLog logEntry = new StrategyExecutionLog();
@@ -158,7 +179,7 @@ public class StrategyRunnerService {
                 return Long.parseLong(intervalParam) * 1000L;
             }
         } catch (NumberFormatException e) {
-            return 60_000L; // fallback
+            return 60_000L;
         }
     }
 
@@ -167,7 +188,6 @@ public class StrategyRunnerService {
         if (context == null || context.getAuthentication() == null || context.getAuthentication().getName() == null) {
             throw new IllegalStateException("Usuário não autenticado no contexto");
         }
-
         String email = context.getAuthentication().getName();
         return (User) userService.loadUserByUsername(email);
     }
