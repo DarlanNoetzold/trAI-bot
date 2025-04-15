@@ -205,6 +205,14 @@ const Sidebar = () => {
         </NavLink>
 
         <NavLink
+          to="/strategies/create"
+          className={({ isActive }) => (isActive ? 'active' : '')}
+        >
+          <Layers size={20} />
+          <span>Criar Estratégia</span>
+        </NavLink>
+
+        <NavLink
           to="/account"
           className={({ isActive }) => (isActive ? 'active' : '')}
         >
