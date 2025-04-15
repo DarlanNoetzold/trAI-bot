@@ -14,7 +14,7 @@ import styled from 'styled-components';
 import { useAuth } from '../../contexts/AuthContext';
 
 const SidebarWrapper = styled.div`
-  width: 250px;
+  width: ${(props) => (props.collapsed ? '70px' : '250px')};
   height: 100vh;
   background: #0f150f;
   color: #d3e6cc;
@@ -23,14 +23,25 @@ const SidebarWrapper = styled.div`
   border-right: 1px solid #4d6b3c88;
   box-shadow: 2px 0 20px #00000040;
   overflow-y: auto;
+  transition: width 0.3s;
+
+  @media (max-width: 768px) {
+    position: absolute;
+    z-index: 1000;
+    height: 100%;
+    left: ${(props) => (props.show ? '0' : '-250px')};
+    transition: left 0.3s;
+  }
 
   .logo {
-    font-size: 1.8rem;
+    font-size: ${(props) => (props.collapsed ? '1rem' : '1.8rem')};
     font-weight: bold;
     color: #7fbb5e;
     text-align: center;
     margin-bottom: 2.5rem;
     text-shadow: 0 0 8px #4d6b3c;
+    overflow: hidden;
+    white-space: nowrap;
   }
 
   .user-info {
@@ -40,6 +51,8 @@ const SidebarWrapper = styled.div`
     p {
       margin: 0 0 0.5rem;
       color: #9ccc9c;
+      font-size: ${(props) => (props.collapsed ? '0' : '1rem')};
+      transition: font-size 0.3s;
     }
 
     button {
@@ -51,6 +64,10 @@ const SidebarWrapper = styled.div`
       border-radius: 6px;
       cursor: pointer;
       transition: background 0.3s;
+      display: ${(props) => (props.collapsed ? 'none' : 'flex')};
+      align-items: center;
+      gap: 0.3rem;
+      justify-content: center;
 
       &:hover {
         background-color: #9ad187;
@@ -87,6 +104,7 @@ const SidebarWrapper = styled.div`
       span {
         flex: 1;
         text-align: left;
+        display: ${(props) => (props.collapsed ? 'none' : 'block')};
       }
 
       &:hover {
@@ -127,10 +145,25 @@ const Sidebar = () => {
   const [ordersOpen, setOrdersOpen] = useState(false);
   const [env, setEnv] = useState('TESTNET');
   const { user, logout } = useAuth();
+  const [collapsed, setCollapsed] = useState(false);
+  const [showMobile, setShowMobile] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem('binanceEnv');
     if (stored) setEnv(stored);
+
+    const handleResize = () => {
+      if (window.innerWidth <= 768) {
+        setCollapsed(true);
+      } else {
+        setCollapsed(false);
+        setShowMobile(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const toggleEnv = () => {
@@ -143,12 +176,12 @@ const Sidebar = () => {
   if (!user) return null;
 
   return (
-    <SidebarWrapper>
-      <div className="logo">CryptoBot</div>
+    <SidebarWrapper collapsed={collapsed} show={showMobile}>
+      <div className="logo">{collapsed ? 'CB' : 'CryptoBot'}</div>
 
       <div className="user-info">
-        <p>Bem-vindo, {user.username}</p>
-        <button onClick={logout}><LogOut size={16} style={{ marginRight: 4 }} /> Logout</button>
+        <p>{user.username}</p>
+        <button onClick={logout}><LogOut size={16} /> Logout</button>
       </div>
 
       <nav>
@@ -157,10 +190,7 @@ const Sidebar = () => {
           <span>Dashboard</span>
         </NavLink>
 
-        <NavLink
-          to="/market"
-          className={({ isActive }) => (isActive ? 'active' : '')}
-        >
+        <NavLink to="/market" className={({ isActive }) => (isActive ? 'active' : '')}>
           <LineChart size={20} />
           <span>Mercado</span>
         </NavLink>
@@ -174,50 +204,33 @@ const Sidebar = () => {
             size={16}
             style={{
               transform: ordersOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-              transition: 'transform 0.3s',
+              transition: 'transform 0.3s'
             }}
           />
         </button>
 
         {ordersOpen && (
           <div className="submenu">
-            <NavLink
-              to="/orders/standard"
-              className={({ isActive }) => (isActive ? 'active' : '')}
-            >
+            <NavLink to="/orders/standard" className={({ isActive }) => (isActive ? 'active' : '')}>
               Comuns
             </NavLink>
-            <NavLink
-              to="/orders/oco"
-              className={({ isActive }) => (isActive ? 'active' : '')}
-            >
+            <NavLink to="/orders/oco" className={({ isActive }) => (isActive ? 'active' : '')}>
               OCO
             </NavLink>
           </div>
         )}
 
-        <NavLink
-          to="/strategies"
-          end
-          className={({ isActive }) => (isActive ? 'active' : '')}
-        >
+        <NavLink to="/strategies" end className={({ isActive }) => (isActive ? 'active' : '')}>
           <Layers size={20} />
           <span>Estratégias</span>
         </NavLink>
 
-
-        <NavLink
-          to="/strategies/create"
-          className={({ isActive }) => (isActive ? 'active' : '')}
-        >
+        <NavLink to="/strategies/create" className={({ isActive }) => (isActive ? 'active' : '')}>
           <Layers size={20} />
           <span>Criar Estratégia</span>
         </NavLink>
 
-        <NavLink
-          to="/account"
-          className={({ isActive }) => (isActive ? 'active' : '')}
-        >
+        <NavLink to="/account" className={({ isActive }) => (isActive ? 'active' : '')}>
           <User size={20} />
           <span>Conta</span>
         </NavLink>
