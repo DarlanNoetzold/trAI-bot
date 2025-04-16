@@ -57,6 +57,12 @@ const Button = styled.button`
   &:hover {
     background: #628d50;
   }
+
+  &:disabled {
+    background: #2c3f2c;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
 `;
 
 const TextArea = styled.textarea`
@@ -102,7 +108,7 @@ function StrategyManager() {
   const [strategies, setStrategies] = useState([]);
   const [selectedStrategy, setSelectedStrategy] = useState(localStorage.getItem('selected_strategy') || '');
   const [params, setParams] = useState({ symbol: 'BTCUSDT', interval: '1m' });
-  const [customCode, setCustomCode] = useState(`# Exemplo de template Python\n\ndef main(symbol, interval):\n    # lógica da estratégia aqui\n    print(f"Rodando para {symbol} com intervalo {interval}")`);
+  const [customCode, setCustomCode] = useState(`# Python template example\n\ndef main(symbol, interval):\n    # strategy logic here\n    print(f"Running for {symbol} with interval {interval}")`);
   const [result, setResult] = useState('');
   const [isRunning, setIsRunning] = useState(localStorage.getItem('bot_running') === 'true');
   const [statusMessage, setStatusMessage] = useState('');
@@ -121,7 +127,7 @@ function StrategyManager() {
       setLogs(res.content);
       setTotalPages(res.totalPages);
     } catch (err) {
-      console.error('Erro ao buscar logs:', err);
+      console.error('Error fetching logs:', err);
     }
   }, [selectedStrategy, page, pageSize]);
 
@@ -133,7 +139,7 @@ function StrategyManager() {
     let dots = '';
     const interval = setInterval(() => {
       dots = dots.length >= 3 ? '' : dots + '.';
-      setStatusMessage(`Executando${dots}`);
+      setStatusMessage(`Running${dots}`);
     }, 1000);
     return () => clearInterval(interval);
   }, [isRunning]);
@@ -143,8 +149,8 @@ function StrategyManager() {
       const res = await listStrategies();
       setStrategies(res);
     } catch (err) {
-      console.error('Erro ao carregar estratégias:', err);
-      setResult('❌ Erro ao buscar estratégias');
+      console.error('Error fetching strategies:', err);
+      setResult('❌ Failed to load strategies');
     }
   };
 
@@ -154,7 +160,7 @@ function StrategyManager() {
       setResult(res);
     } catch (err) {
       console.error(err);
-      setResult('❌ Erro ao executar uma vez');
+      setResult('❌ Error running once');
     }
   };
 
@@ -167,7 +173,7 @@ function StrategyManager() {
       localStorage.setItem('selected_strategy', selectedStrategy);
     } catch (err) {
       console.error(err);
-      setResult('❌ Erro ao iniciar o bot');
+      setResult('❌ Error starting bot');
     }
   };
 
@@ -180,7 +186,7 @@ function StrategyManager() {
       localStorage.removeItem('selected_strategy');
     } catch (err) {
       console.error(err);
-      setResult('❌ Erro ao parar o bot');
+      setResult('❌ Error stopping bot');
     }
   };
 
@@ -190,7 +196,7 @@ function StrategyManager() {
       setResult(res);
     } catch (err) {
       console.error(err);
-      setResult('❌ Erro ao executar código customizado');
+      setResult('❌ Error running custom code');
     }
   };
 
@@ -203,13 +209,13 @@ function StrategyManager() {
   return (
     <Container>
       <h2 style={{ fontSize: '1.6rem', marginBottom: '1rem', color: '#9fe69f' }}>
-        Gerenciador de Estratégias
+        Strategy Manager
       </h2>
 
       <div>
-        <Label>Escolha uma estratégia:</Label>
+        <Label>Select a strategy:</Label>
         <Select value={selectedStrategy} onChange={(e) => setSelectedStrategy(e.target.value)}>
-          <option value="">-- selecione --</option>
+          <option value="">-- select --</option>
           {strategies.map((s) => (
             <option key={s} value={s}>{s}</option>
           ))}
@@ -217,35 +223,35 @@ function StrategyManager() {
       </div>
 
       <div>
-        <Label>Símbolo:</Label>
+        <Label>Symbol:</Label>
         <Input value={params.symbol} onChange={(e) => setParams({ ...params, symbol: e.target.value })} />
-        <Label>Intervalo:</Label>
+        <Label>Interval:</Label>
         <Input value={params.interval} onChange={(e) => setParams({ ...params, interval: e.target.value })} />
       </div>
 
       <div style={{ margin: '1.5rem 0' }}>
-        <Button onClick={handleRunOnce}>Executar Uma Vez</Button>
-        <Button onClick={handleRunBot}>Iniciar Bot</Button>
-        <Button onClick={handleStopBot}>Parar Bot</Button>
+        <Button onClick={handleRunOnce}>Run Once</Button>
+        <Button onClick={handleRunBot}>Start Bot</Button>
+        <Button onClick={handleStopBot}>Stop Bot</Button>
       </div>
 
-      <Status $active={isRunning}>{isRunning ? statusMessage : 'Bot Parado'}</Status>
+      <Status $active={isRunning}>{isRunning ? statusMessage : 'Bot Stopped'}</Status>
 
       <div style={{ marginTop: '2rem' }}>
-        <Label>Código Python Customizado:</Label>
+        <Label>Custom Python Code:</Label>
         <TextArea value={customCode} onChange={(e) => setCustomCode(e.target.value)} />
-        <Button style={{ marginTop: '1rem' }} onClick={handleRunCustom}>Executar Código</Button>
+        <Button style={{ marginTop: '1rem' }} onClick={handleRunCustom}>Run Code</Button>
       </div>
 
       {result && (
         <div>
-          <Label>Saída:</Label>
+          <Label>Output:</Label>
           <OutputBox>{result}</OutputBox>
         </div>
       )}
 
       <div style={{ marginTop: '2rem' }}>
-        <Button onClick={fetchLogs}>🔄 Atualizar Logs</Button>
+        <Button onClick={fetchLogs}>🔄 Refresh Logs</Button>
       </div>
 
       {logs.length > 0 && (
@@ -258,13 +264,13 @@ function StrategyManager() {
           </OutputBox>
 
           <Pagination>
-            <Button onClick={() => handlePageChange(page - 1)} disabled={page === 0}>Anterior</Button>
+            <Button onClick={() => handlePageChange(page - 1)} disabled={page === 0}>Prev</Button>
             {Array.from({ length: totalPages }, (_, i) => (
               <Button key={i} onClick={() => handlePageChange(i)} disabled={page === i}>
                 {i + 1}
               </Button>
             ))}
-            <Button onClick={() => handlePageChange(page + 1)} disabled={page >= totalPages - 1}>Próxima</Button>
+            <Button onClick={() => handlePageChange(page + 1)} disabled={page >= totalPages - 1}>Next</Button>
           </Pagination>
         </div>
       )}
