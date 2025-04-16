@@ -177,70 +177,71 @@ const Sidebar = () => {
 
   return (
     <SidebarWrapper collapsed={collapsed} show={showMobile}>
-      <div className="logo">{collapsed ? 'CB' : 'CryptoBot'}</div>
+  <div className="logo">{collapsed ? 'CB' : 'CryptoBot'}</div>
 
-      <div className="user-info">
-        <p>{user.username}</p>
-        <button onClick={logout}><LogOut size={16} /> Logout</button>
+  <div className="user-info">
+    <p>{user.username}</p>
+    <button onClick={logout}><LogOut size={16} /> Logout</button>
+  </div>
+
+  <nav>
+    <NavLink to="/" className={({ isActive }) => (isActive ? 'active' : '')}>
+      <Home size={20} />
+      <span>Dashboard</span>
+    </NavLink>
+
+    <NavLink to="/market" className={({ isActive }) => (isActive ? 'active' : '')}>
+      <LineChart size={20} />
+      <span>Market</span>
+    </NavLink>
+
+    <button className="menu-toggle" onClick={() => setOrdersOpen(!ordersOpen)}>
+      <span className="flex items-center gap-2">
+        <ShoppingCart size={20} />
+        <span>Orders</span>
+      </span>
+      <ChevronDown
+        size={16}
+        style={{
+          transform: ordersOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+          transition: 'transform 0.3s'
+        }}
+      />
+    </button>
+
+    {ordersOpen && (
+      <div className="submenu">
+        <NavLink to="/orders/standard" className={({ isActive }) => (isActive ? 'active' : '')}>
+          Standard
+        </NavLink>
+        <NavLink to="/orders/oco" className={({ isActive }) => (isActive ? 'active' : '')}>
+          OCO
+        </NavLink>
       </div>
+    )}
 
-      <nav>
-        <NavLink to="/" className={({ isActive }) => (isActive ? 'active' : '')}>
-          <Home size={20} />
-          <span>Dashboard</span>
-        </NavLink>
+    <NavLink to="/strategies" end className={({ isActive }) => (isActive ? 'active' : '')}>
+      <Layers size={20} />
+      <span>Strategies</span>
+    </NavLink>
 
-        <NavLink to="/market" className={({ isActive }) => (isActive ? 'active' : '')}>
-          <LineChart size={20} />
-          <span>Mercado</span>
-        </NavLink>
+    <NavLink to="/strategies/create" className={({ isActive }) => (isActive ? 'active' : '')}>
+      <Layers size={20} />
+      <span>Create Strategy</span>
+    </NavLink>
 
-        <button className="menu-toggle" onClick={() => setOrdersOpen(!ordersOpen)}>
-          <span className="flex items-center gap-2">
-            <ShoppingCart size={20} />
-            <span>Ordens</span>
-          </span>
-          <ChevronDown
-            size={16}
-            style={{
-              transform: ordersOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-              transition: 'transform 0.3s'
-            }}
-          />
-        </button>
+    <NavLink to="/account" className={({ isActive }) => (isActive ? 'active' : '')}>
+      <User size={20} />
+      <span>Account</span>
+    </NavLink>
 
-        {ordersOpen && (
-          <div className="submenu">
-            <NavLink to="/orders/standard" className={({ isActive }) => (isActive ? 'active' : '')}>
-              Comuns
-            </NavLink>
-            <NavLink to="/orders/oco" className={({ isActive }) => (isActive ? 'active' : '')}>
-              OCO
-            </NavLink>
-          </div>
-        )}
+    <button className="env-toggle" onClick={toggleEnv}>
+      <RefreshCcw size={18} />
+      <span>Environment: {env}</span>
+    </button>
+  </nav>
+</SidebarWrapper>
 
-        <NavLink to="/strategies" end className={({ isActive }) => (isActive ? 'active' : '')}>
-          <Layers size={20} />
-          <span>Estratégias</span>
-        </NavLink>
-
-        <NavLink to="/strategies/create" className={({ isActive }) => (isActive ? 'active' : '')}>
-          <Layers size={20} />
-          <span>Criar Estratégia</span>
-        </NavLink>
-
-        <NavLink to="/account" className={({ isActive }) => (isActive ? 'active' : '')}>
-          <User size={20} />
-          <span>Conta</span>
-        </NavLink>
-
-        <button className="env-toggle" onClick={toggleEnv}>
-          <RefreshCcw size={18} />
-          <span>Ambiente: {env}</span>
-        </button>
-      </nav>
-    </SidebarWrapper>
   );
 };
 
