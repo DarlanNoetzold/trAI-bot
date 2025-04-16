@@ -105,7 +105,7 @@ function StandardOrders() {
       setOpenOrders(open);
       setOrderHistory(history);
     } catch (err) {
-      console.error('Erro ao carregar ordens:', err);
+      console.error('Error fetching orders:', err);
     }
   };
 
@@ -114,7 +114,7 @@ function StandardOrders() {
       await cancelOrder(symbol, orderId);
       fetchOrders();
     } catch (err) {
-      console.error('Erro ao cancelar ordem:', err);
+      console.error('Error cancelling order:', err);
     }
   };
 
@@ -124,11 +124,11 @@ function StandardOrders() {
 
   return (
     <Container>
-      <Title>Ordens Comuns</Title>
+      <Title>Standard Orders</Title>
 
       <FormWrapper>
         <div>
-          <Label>Símbolo:</Label>
+          <Label>Symbol:</Label>
           <Input
             type="text"
             value={symbol}
@@ -142,19 +142,19 @@ function StandardOrders() {
       </FormWrapper>
 
       <div>
-        <SectionTitle>Ordens Abertas</SectionTitle>
+        <SectionTitle>Open Orders</SectionTitle>
         <TableWrapper>
           <DataTable
             data={openOrders}
             columns={['orderId', 'symbol', 'price', 'origQty', 'status', 'side']}
             onAction={handleCancelOrder}
-            actionLabel="Cancelar"
+            actionLabel="Cancel"
           />
         </TableWrapper>
       </div>
 
       <div>
-        <SectionTitle>Histórico de Ordens</SectionTitle>
+        <SectionTitle>Order History</SectionTitle>
         <TableWrapper>
           <DataTable
             data={orderHistory}
