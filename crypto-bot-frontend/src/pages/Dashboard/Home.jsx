@@ -45,6 +45,7 @@ const Wrapper = styled.div`
     margin-top: 4rem;
     display: grid;
     grid-template-columns: 1fr;
+
     gap: 2rem;
 
     @media (min-width: 640px) {
@@ -134,43 +135,43 @@ export default function HomePage() {
     !user && {
       icon: <LogIn size={32} />,
       title: "Login",
-      description: "Autentique-se com seu e-mail e senha para acessar o sistema.",
+      description: "Log in with your email and password to access the system.",
       action: () => setShowModal(true),
     },
     !user && {
       icon: <Lock size={32} />,
-      title: "Registro",
-      description: "Crie sua conta fornecendo e-mail, senha e chaves da Binance.",
+      title: "Register",
+      description: "Create your account by providing email, password, and Binance keys.",
       action: () => setShowModal(true),
     },
     user && {
       icon: <BarChart size={32} />,
-      title: "Mercado em Tempo Real",
-      description: "Visualize preços, candles e ordens com gráficos dinâmicos.",
+      title: "Real-Time Market",
+      description: "View prices, candles, and orders with dynamic charts.",
       link: "/market",
     },
     user && {
       icon: <ShoppingCart size={32} />,
-      title: "Ordens Comuns",
-      description: "Envie ordens simples com preenchimento imediato e histórico de execução.",
+      title: "Standard Orders",
+      description: "Place simple orders with instant fill and execution history.",
       link: "/orders/standard",
     },
     user && {
       icon: <ShoppingCart size={32} />,
-      title: "Ordens OCO",
-      description: "Envie ordens OCO com stop loss e take profit automáticos.",
+      title: "OCO Orders",
+      description: "Place OCO orders with automatic stop-loss and take-profit.",
       link: "/orders/oco",
     },
     user && {
       icon: <LayoutDashboard size={32} />,
-      title: "Gerenciar Bots",
-      description: "Execute e monitore bots automáticos com estratégias personalizadas.",
+      title: "Bot Management",
+      description: "Run and monitor automated bots with custom strategies.",
       link: "/strategies",
     },
     user && {
       icon: <User size={32} />,
       title: "Dashboard",
-      description: "Acompanhe seu portfólio, saldo e estratégias em tempo real.",
+      description: "Track your portfolio, balance, and strategies in real time.",
       link: "/account",
     },
   ].filter(Boolean);
@@ -192,13 +193,13 @@ export default function HomePage() {
         transition={{ delay: 0.6, duration: 0.8 }}
         className="subheading"
       >
-        Controle completo das suas estratégias automatizadas com insights,
-        execução de ordens e gráficos em tempo real.
+        Full control of your automated strategies with insights, order execution,
+        and real-time charts.
       </motion.p>
 
       {user && (
         <div className="auth-header">
-          <span>Bem-vindo, {user.username}</span>
+          <span>Welcome, {user.username}</span>
           <button onClick={logout} className="logout-btn">
             <LogOut size={18} style={{ marginRight: 4 }} /> Logout
           </button>
@@ -221,9 +222,9 @@ export default function HomePage() {
             </div>
             <p>{feature.description}</p>
             {feature.link ? (
-              <Link className="link" to={feature.link}>Acessar →</Link>
+              <Link className="link" to={feature.link}>Access →</Link>
             ) : (
-              <span className="link" onClick={feature.action}>Acessar →</span>
+              <span className="link" onClick={feature.action}>Access →</span>
             )}
           </motion.div>
         ))}
