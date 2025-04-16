@@ -75,7 +75,7 @@ function AccountInfo() {
         setInfo(infoRes);
         setTrades(tradesRes);
       } catch (error) {
-        console.error('Erro ao buscar informações da conta:', error);
+        console.error('Error fetching account information:', error);
       } finally {
         setLoading(false);
       }
@@ -87,10 +87,10 @@ function AccountInfo() {
 
   return (
     <Container>
-      <Title>Informações da Conta</Title>
+      <Title>Account Information</Title>
 
       <div>
-        <Label>Símbolo:</Label>
+        <Label>Symbol:</Label>
         <Input
           type="text"
           value={symbol}
@@ -100,13 +100,13 @@ function AccountInfo() {
 
       {info && (
         <div>
-          <SectionTitle>Saldos:</SectionTitle>
+          <SectionTitle>Balances:</SectionTitle>
           <Table>
             <thead>
               <tr>
-                <Th>Moeda</Th>
-                <Th>Disponível</Th>
-                <Th>Em Ordem</Th>
+                <Th>Asset</Th>
+                <Th>Available</Th>
+                <Th>In Order</Th>
               </tr>
             </thead>
             <tbody>
@@ -128,13 +128,13 @@ function AccountInfo() {
 
       {trades && (
         <div>
-          <SectionTitle>Últimos Trades ({symbol}):</SectionTitle>
+          <SectionTitle>Recent Trades ({symbol}):</SectionTitle>
           <Table>
             <thead>
               <tr>
                 <Th>ID</Th>
-                <Th>Preço</Th>
-                <Th>Quantidade</Th>
+                <Th>Price</Th>
+                <Th>Quantity</Th>
                 <Th>Timestamp</Th>
               </tr>
             </thead>
