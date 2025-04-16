@@ -13,6 +13,7 @@ import {
 import styled from 'styled-components';
 import { useAuth } from '../../contexts/AuthContext';
 
+
 const SidebarWrapper = styled.div`
   width: ${(props) => (props.collapsed ? '70px' : '250px')};
   height: 100vh;
