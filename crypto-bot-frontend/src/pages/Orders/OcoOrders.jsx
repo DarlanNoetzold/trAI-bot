@@ -111,7 +111,7 @@ const OcoOrders = () => {
       const data = await getOpenOrders(symbol);
       setOrders(data);
     } catch (error) {
-      console.error('Erro ao buscar ordens OCO abertas', error);
+      console.error('Error fetching open OCO orders', error);
     }
   };
 
@@ -120,7 +120,7 @@ const OcoOrders = () => {
       const data = await getOrderHistory(symbol);
       setHistory(data);
     } catch (error) {
-      console.error('Erro ao buscar histórico de ordens OCO', error);
+      console.error('Error fetching OCO order history', error);
     }
   };
 
@@ -133,7 +133,7 @@ const OcoOrders = () => {
       });
       fetchOpenOrders();
     } catch (error) {
-      console.error('Erro ao criar ordem OCO', error);
+      console.error('Error placing OCO order', error);
     }
   };
 
@@ -142,7 +142,7 @@ const OcoOrders = () => {
       await cancelOcoOrder(symbol, order.orderListId, order.listClientOrderId);
       fetchOpenOrders();
     } catch (error) {
-      console.error('Erro ao cancelar ordem OCO', error);
+      console.error('Error cancelling OCO order', error);
     }
   };
 
@@ -153,11 +153,11 @@ const OcoOrders = () => {
 
   return (
     <Container>
-      <Title>Gerenciar Ordens OCO</Title>
+      <Title>Manage OCO Orders</Title>
 
       <FormWrapper>
         <div>
-          <Label>Símbolo:</Label>
+          <Label>Symbol:</Label>
           <Input
             value={symbol}
             onChange={(e) => setSymbol(e.target.value)}
@@ -175,19 +175,19 @@ const OcoOrders = () => {
       </FormWrapper>
 
       <div>
-        <SectionTitle>Ordens OCO Abertas</SectionTitle>
+        <SectionTitle>Open OCO Orders</SectionTitle>
         <TableWrapper>
           <DataTable
             data={orders}
             columns={['orderListId', 'symbol', 'price', 'origQty', 'status']}
             onAction={handleCancelOrder}
-            actionLabel="Cancelar"
+            actionLabel="Cancel"
           />
         </TableWrapper>
       </div>
 
       <div>
-        <SectionTitle>Histórico de Ordens OCO</SectionTitle>
+        <SectionTitle>OCO Order History</SectionTitle>
         <TableWrapper>
           <DataTable
             data={history}
