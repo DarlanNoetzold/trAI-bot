@@ -121,71 +121,71 @@ const CreateCustomStrategy = () => {
       };
 
       const res = await api.post('/custom-strategies', payload);
-      setResponse('✅ Estratégia criada com sucesso!');
+      setResponse('✅ Strategy created successfully!');
     } catch (err) {
       console.error(err);
-      setResponse('❌ Erro ao criar estratégia');
+      setResponse('❌ Error while creating strategy');
     }
   };
 
   return (
     <Container>
-      <h2 style={{ color: '#9fe69f', marginBottom: '1rem' }}>Criar Estratégia Customizada</h2>
+      <h2 style={{ color: '#9fe69f', marginBottom: '1rem' }}>Create Custom Strategy</h2>
 
-      <Label>Nome:</Label>
+      <Label>Name:</Label>
       <Input name="name" value={strategy.name} onChange={handleChange} />
 
-      <Label>Símbolo:</Label>
+      <Label>Symbol:</Label>
       <Input name="symbol" value={strategy.symbol} onChange={handleChange} />
 
-      <Label>Intervalo:</Label>
+      <Label>Interval:</Label>
       <Input name="interval" value={strategy.interval} onChange={handleChange} />
 
-      <Label>Posição:</Label>
+      <Label>Position:</Label>
       <Select name="position" value={strategy.position} onChange={handleChange}>
         <option value="LONG">LONG</option>
         <option value="SHORT">SHORT</option>
       </Select>
 
-      <Label>Indicador:</Label>
+      <Label>Indicator:</Label>
       <Select name="indicatorType" value={strategy.indicatorType} onChange={handleChange}>
         <option value="RSI">RSI</option>
         <option value="EMA">EMA</option>
         <option value="SMA">SMA</option>
       </Select>
 
-      <Label>Período:</Label>
+      <Label>Period:</Label>
       <Input type="number" name="period" value={strategy.period} onChange={handleChange} />
 
-      <Label>Condição de Entrada:</Label>
+      <Label>Entry Condition:</Label>
       <Select name="entryCondition" value={strategy.entryCondition} onChange={handleChange}>
         <option value=">">{'>'}</option>
         <option value="<">{'<'}</option>
         <option value="==">{'=='}</option>
       </Select>
 
-      <Label>Valor de Entrada:</Label>
+      <Label>Entry Value:</Label>
       <Input name="entryValue" value={strategy.entryValue} onChange={handleChange} />
 
-      <Label>Condição de Saída:</Label>
+      <Label>Exit Condition:</Label>
       <Select name="exitCondition" value={strategy.exitCondition} onChange={handleChange}>
         <option value=">">{'>'}</option>
         <option value="<">{'<'}</option>
         <option value="==">{'=='}</option>
       </Select>
 
-      <Label>Valor de Saída:</Label>
+      <Label>Exit Value:</Label>
       <Input name="exitValue" value={strategy.exitValue} onChange={handleChange} />
 
-      <Label>Lógica Customizada (opcional):</Label>
+      <Label>Custom Logic (optional):</Label>
       <TextArea
         name="strategyCode"
         value={strategy.strategyCode}
         onChange={handleChange}
-        placeholder="def main():\n    # lógica customizada"
+        placeholder="def main():\n    # custom strategy logic"
       />
 
-      <Button onClick={handleSubmit}>Salvar Estratégia</Button>
+      <Button onClick={handleSubmit}>Save Strategy</Button>
 
       {response && <OutputBox>{response}</OutputBox>}
     </Container>
