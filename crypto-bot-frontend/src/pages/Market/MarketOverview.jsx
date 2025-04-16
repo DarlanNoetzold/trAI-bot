@@ -135,8 +135,8 @@ const MarketOverview = () => {
       try {
         const [priceData, candleData, depthData, tradesData, bookData] = await Promise.all([
           getPrice(symbol),
-          getCandles(symbol, interval, 50),
-          getDepth(symbol, 10),
+          getCandles(symbol, interval, 5000),
+          getDepth(symbol, 1000),
           getTrades(symbol, 20),
           getBookTicker(symbol),
         ]);
@@ -146,7 +146,7 @@ const MarketOverview = () => {
         setTrades(tradesData);
         setBookTicker(bookData);
       } catch (error) {
-        console.error('Erro ao buscar dados de mercado:', error);
+        console.error('Error fetching market data:', error);
       } finally {
         setLoading(false);
       }
@@ -161,7 +161,7 @@ const MarketOverview = () => {
     <Container>
       <TitleRow>
         <div>
-          <label>Ativo:</label>
+          <label>Symbol:</label>
           <select value={symbol} onChange={(e) => setSymbol(e.target.value)}>
             {symbolsList.map((sym) => (
               <option key={sym} value={sym}>{sym}</option>
@@ -170,7 +170,7 @@ const MarketOverview = () => {
         </div>
 
         <div>
-          <label>Intervalo:</label>
+          <label>Interval:</label>
           <select value={interval} onChange={(e) => setInterval(e.target.value)}>
             {['1m', '5m', '15m', '1h', '4h', '1d'].map((opt) => (
               <option key={opt} value={opt}>{opt}</option>
@@ -180,7 +180,7 @@ const MarketOverview = () => {
       </TitleRow>
 
       <LastPrice>
-        <strong>Último preço:</strong> ${price}
+        <strong>Last Price:</strong> ${price}
       </LastPrice>
 
       <div style={{ marginTop: '2rem' }}>
@@ -189,13 +189,13 @@ const MarketOverview = () => {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
         <Section>
-          <h3>Livro de Ordens</h3>
+          <h3>Order Book</h3>
           <BookWrapper>
             <table>
               <thead>
                 <tr>
-                  <th>Preço</th>
-                  <th>Quantidade</th>
+                  <th>Price</th>
+                  <th>Quantity</th>
                 </tr>
               </thead>
               <tbody>
@@ -211,14 +211,14 @@ const MarketOverview = () => {
         </Section>
 
         <Section>
-          <h3>Últimos Trades</h3>
+          <h3>Recent Trades</h3>
           <BookWrapper>
             <TradeTable>
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Preço</th>
-                  <th>Qtd</th>
+                  <th>Price</th>
+                  <th>Qty</th>
                   <th>Timestamp</th>
                 </tr>
               </thead>
