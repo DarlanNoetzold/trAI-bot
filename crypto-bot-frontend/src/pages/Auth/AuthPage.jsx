@@ -128,10 +128,10 @@ export default function AuthPage({ onClose = () => {} }) {
   return (
     <ModalWrapper>
       <ModalContent>
-        <h2>{isLogin ? "Login" : "Registro"}</h2>
+        <h2>{isLogin ? "Login" : "Register"}</h2>
         <ToggleButtons>
           <button onClick={() => setIsLogin(true)}>Login</button>
-          <button onClick={() => setIsLogin(false)}>Registro</button>
+          <button onClick={() => setIsLogin(false)}>Register</button>
         </ToggleButtons>
 
         {isLogin ? (
@@ -143,11 +143,11 @@ export default function AuthPage({ onClose = () => {} }) {
             />
             <input
               type="password"
-              placeholder="Senha"
+              placeholder="Password"
               value={loginForm.password}
               onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
             />
-            <button onClick={handleLogin}>Entrar</button>
+            <button onClick={handleLogin}>Sign In</button>
           </>
         ) : (
           <>
@@ -163,7 +163,7 @@ export default function AuthPage({ onClose = () => {} }) {
             />
             <input
               type="password"
-              placeholder="Senha"
+              placeholder="Password"
               value={registerForm.password}
               onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
             />
@@ -173,7 +173,7 @@ export default function AuthPage({ onClose = () => {} }) {
               onChange={(e) => setRegisterForm({ ...registerForm, birthDate: e.target.value })}
             />
             <input
-              placeholder="Endereço"
+              placeholder="Address"
               value={registerForm.address}
               onChange={(e) => setRegisterForm({ ...registerForm, address: e.target.value })}
             />
@@ -197,7 +197,7 @@ export default function AuthPage({ onClose = () => {} }) {
               value={registerForm.testnetSecretKey}
               onChange={(e) => setRegisterForm({ ...registerForm, testnetSecretKey: e.target.value })}
             />
-            <button onClick={handleRegister}>Registrar</button>
+            <button onClick={handleRegister}>Register</button>
           </>
         )}
       </ModalContent>
