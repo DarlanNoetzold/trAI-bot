@@ -88,7 +88,7 @@ const StrategyRunner = () => {
         const list = await listStrategies();
         setStrategies(list);
       } catch (err) {
-        console.error('Erro ao carregar estratégias:', err);
+        console.error('Failed to load strategies:', err);
       }
     };
 
@@ -100,7 +100,7 @@ const StrategyRunner = () => {
       const res = await runStrategy(selectedStrategy, { symbol, interval });
       setLogs(res);
     } catch (err) {
-      setLogs(`Erro ao rodar: ${err.message}`);
+      setLogs(`Error running strategy: ${err.message}`);
     }
   };
 
@@ -109,20 +109,20 @@ const StrategyRunner = () => {
       const res = await stopStrategy(selectedStrategy);
       setLogs(res);
     } catch (err) {
-      setLogs(`Erro ao parar: ${err.message}`);
+      setLogs(`Error stopping strategy: ${err.message}`);
     }
   };
 
   return (
     <Container>
-      <Title>Monitoramento de Estratégias</Title>
+      <Title>Strategy Monitoring</Title>
 
       <Grid>
         <Select
           value={selectedStrategy}
           onChange={(e) => setSelectedStrategy(e.target.value)}
         >
-          <option value="">Selecione uma estratégia</option>
+          <option value="">Select a strategy</option>
           {strategies.map((strategy) => (
             <option key={strategy} value={strategy}>
               {strategy}
@@ -132,23 +132,23 @@ const StrategyRunner = () => {
 
         <Input
           type="text"
-          placeholder="Símbolo (ex: BTCUSDT)"
+          placeholder="Symbol (e.g., BTCUSDT)"
           value={symbol}
           onChange={(e) => setSymbol(e.target.value)}
         />
 
         <Input
           type="text"
-          placeholder="Intervalo (ex: 1m)"
+          placeholder="Interval (e.g., 1m)"
           value={interval}
           onChange={(e) => setInterval(e.target.value)}
         />
       </Grid>
 
       <div style={{ marginBottom: '1.5rem' }}>
-        <Button onClick={handleRunBot}>Iniciar</Button>
+        <Button onClick={handleRunBot}>Start</Button>
         <Button variant="stop" onClick={handleStopBot}>
-          Parar
+          Stop
         </Button>
       </div>
 
