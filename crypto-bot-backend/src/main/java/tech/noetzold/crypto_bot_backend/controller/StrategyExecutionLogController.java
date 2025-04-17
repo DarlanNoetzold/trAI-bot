@@ -1,6 +1,7 @@
 package tech.noetzold.crypto_bot_backend.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import java.security.Principal;
 @RestController
 @RequestMapping("/api/logs")
 @RequiredArgsConstructor
+@Slf4j
 public class StrategyExecutionLogController {
 
     private final StrategyExecutionLogRepository logRepository;
@@ -27,14 +29,17 @@ public class StrategyExecutionLogController {
             @RequestParam(required = false) String strategyName,
             Principal principal
     ) {
-        User user = (User) userService.loadUserByUsername(principal.getName());
+        log.info("GET /api/logs called by user={} with strategyName={}, page={}, size={}",
+                principal.getName(), strategyName, page, size);
 
+        User user = (User) userService.loadUserByUsername(principal.getName());
         PageRequest pageRequest = PageRequest.of(page, size);
 
         Page<StrategyExecutionLog> logs = (strategyName == null || strategyName.isBlank())
                 ? logRepository.findByUserIdOrderByTimestampDesc(user.getId(), pageRequest)
                 : logRepository.findByUserIdAndStrategyNameOrderByTimestampDesc(user.getId(), strategyName, pageRequest);
 
+        log.info("Logs returned: count={}, userId={}", logs.getTotalElements(), user.getId());
         return ResponseEntity.ok(logs);
     }
 }
