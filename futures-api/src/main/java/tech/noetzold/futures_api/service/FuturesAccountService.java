@@ -12,7 +12,6 @@ import tech.noetzold.futures_api.util.BinanceSignatureUtil;
 import tech.noetzold.futures_api.util.TimeUtil;
 
 import java.util.Collections;
-import java.util.Map;
 
 @Slf4j
 @Service
