@@ -32,4 +32,6 @@ public class AuthController {
         log.info("POST /api/auth/login called with email={}", dto.getEmail());
         return ResponseEntity.ok(authService.login(dto));
     }
+
+
 }
