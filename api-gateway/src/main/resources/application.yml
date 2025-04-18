@@ -1,0 +1,24 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      default-filters:
+        - AddResponseHeader=X-GATEWAY, crypto-bot-gateway
+      httpclient:
+        connect-timeout: 5000
+        response-timeout: 10s
+
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty.http.client: DEBUG
+
+
+jwt:
+  secret: 3BvNxQ9yV7wKdL0eM2u6rJ1xYzH5qA9z
