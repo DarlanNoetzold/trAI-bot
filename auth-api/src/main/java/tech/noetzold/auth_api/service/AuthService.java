@@ -47,7 +47,6 @@ public class AuthService {
             throw new RuntimeException("Senha incorreta");
         }
 
-        String token = jwtUtil.generateToken(user.getEmail());
-        return new AuthResponseDTO(token, user.getUsername());
+        return new AuthResponseDTO(jwtUtil.generateToken(user.getEmail(), user.getId(), "user"), user.getUsername());
     }
 }
