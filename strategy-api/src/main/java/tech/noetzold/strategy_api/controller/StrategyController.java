@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tech.noetzold.strategy_api.model.User;
+import tech.noetzold.strategy_api.repository.UserRepository;
 import tech.noetzold.strategy_api.service.StrategyRunnerService;
 
 import java.util.List;
@@ -16,6 +18,17 @@ import java.util.Map;
 public class StrategyController {
 
     private final StrategyRunnerService strategyRunnerService;
+    private final UserRepository userRepository;
+
+    private User extractUserFromHeaders(Map<String, String> headers) {
+        String email = headers.get("x-email");
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Missing X-EMAIL header");
+        }
+
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found for email: " + email));
+    }
 
     @GetMapping("/list")
     public ResponseEntity<List<String>> listStrategies() {
@@ -26,20 +39,24 @@ public class StrategyController {
     @PostMapping("/run/{strategyName}")
     public ResponseEntity<String> runStrategy(
             @PathVariable String strategyName,
-            @RequestBody Map<String, String> params
+            @RequestBody Map<String, String> params,
+            @RequestHeader Map<String, String> headers
     ) {
-        log.info("POST /api/strategies/run/{} called with params={}", strategyName, params);
-        String result = strategyRunnerService.runStrategyAsync(strategyName, params);
+        User user = extractUserFromHeaders(headers);
+        log.info("POST /api/strategies/run/{} called by user={} with params={}", strategyName, user.getEmail(), params);
+        String result = strategyRunnerService.runStrategyAsync(strategyName, params, user);
         return ResponseEntity.ok(result);
     }
 
     @PostMapping("/run-once/{strategyName}")
     public ResponseEntity<String> runStrategyOnce(
             @PathVariable String strategyName,
-            @RequestBody Map<String, String> params
+            @RequestBody Map<String, String> params,
+            @RequestHeader Map<String, String> headers
     ) {
-        log.info("POST /api/strategies/run-once/{} called with params={}", strategyName, params);
-        String result = strategyRunnerService.runStrategy(strategyName, params);
+        User user = extractUserFromHeaders(headers);
+        log.info("POST /api/strategies/run-once/{} called by user={} with params={}", strategyName, user.getEmail(), params);
+        String result = strategyRunnerService.runStrategy(strategyName, params, user);
         return ResponseEntity.ok(result);
     }
 
