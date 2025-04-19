@@ -1,10 +1,6 @@
 package tech.noetzold.strategy_api.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.concurrent.DelegatingSecurityContextRunnable;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.FluxSink;
 import tech.noetzold.strategy_api.context.BinanceEnvironmentContext;
@@ -28,20 +24,19 @@ public class StrategyRunnerService {
     private final ExecutorService executor = Executors.newCachedThreadPool();
     private final Map<String, Future<?>> runningStrategies = new ConcurrentHashMap<>();
     private final Map<String, FluxSink<String>> logSubscribers = new ConcurrentHashMap<>();
-    private final UserService userService;
     private final StrategyExecutionLogRepository strategyExecutionLogRepository;
     private final CustomStrategyRepository customStrategyRepository;
 
     public StrategyRunnerService(List<BaseStrategy> strategyBeanList,
-                                 UserService userService,
                                  StrategyExecutionLogRepository strategyExecutionLogRepository,
                                  CustomStrategyRepository customStrategyRepository) {
-        this.userService = userService;
         this.strategyExecutionLogRepository = strategyExecutionLogRepository;
         this.customStrategyRepository = customStrategyRepository;
+
+        // 🛠️ Substituindo tentativa de usar valor de anotação @Service por nome da classe em lowercase
         this.strategyBeans = strategyBeanList.stream()
                 .collect(Collectors.toMap(
-                        bean -> bean.getClass().getAnnotation(Component.class).value(),
+                        bean -> bean.getClass().getSimpleName().toLowerCase(),  // nome da classe como chave
                         bean -> bean
                 ));
     }
@@ -54,11 +49,10 @@ public class StrategyRunnerService {
         return fixed;
     }
 
-    public String runStrategy(String strategyName, Map<String, String> params) {
+    public String runStrategy(String strategyName, Map<String, String> params, User user) {
         if (strategyBeans.containsKey(strategyName)) {
             BaseStrategy strategy = strategyBeans.get(strategyName);
             try {
-                User user = getAuthenticatedUser();
                 String apiKey = getApiKey(user);
                 String secretKey = getSecretKey(user);
                 log.info("🚀 Executando estratégia fixa: {} com usuário {}", strategyName, user.getEmail());
@@ -71,7 +65,6 @@ public class StrategyRunnerService {
             Optional<CustomStrategy> customOpt = customStrategyRepository.findByName(strategyName);
             if (customOpt.isPresent()) {
                 try {
-                    User user = getAuthenticatedUser();
                     String apiKey = getApiKey(user);
                     String secretKey = getSecretKey(user);
                     CustomStrategy custom = customOpt.get();
@@ -87,38 +80,31 @@ public class StrategyRunnerService {
         }
     }
 
-    public String runStrategyAsync(String strategyName, Map<String, String> params) {
+    public String runStrategyAsync(String strategyName, Map<String, String> params, User user) {
         if (runningStrategies.containsKey(strategyName)) {
             return "⚠️ Estratégia já está em execução: " + strategyName;
         }
 
-        SecurityContext securityContext = SecurityContextHolder.getContext();
         long interval = getIntervalInMillis(params.getOrDefault("interval", "60"));
 
         Runnable task = () -> {
             try {
-                SecurityContextHolder.setContext(securityContext);
-
                 while (!Thread.currentThread().isInterrupted()) {
-                    publishLog(strategyName, "⏳ Executando estratégia '" + strategyName + "'...");
-                    String result = runStrategy(strategyName, params);
-                    publishLog(strategyName, "✅ Resultado: " + result);
+                    publishLog(strategyName, "⏳ Executando estratégia '" + strategyName + "'...", user);
+                    String result = runStrategy(strategyName, params, user);
+                    publishLog(strategyName, "✅ Resultado: " + result, user);
                     Thread.sleep(interval);
                 }
-
             } catch (InterruptedException e) {
-                publishLog(strategyName, "🛑 Estratégia '" + strategyName + "' interrompida.");
+                publishLog(strategyName, "🛑 Estratégia '" + strategyName + "' interrompida.", user);
                 Thread.currentThread().interrupt();
             } catch (Exception e) {
                 log.error("❌ Erro na execução da estratégia: {}", strategyName, e);
-                publishLog(strategyName, "❌ Erro: " + e.getMessage());
-            } finally {
-                SecurityContextHolder.clearContext();
+                publishLog(strategyName, "❌ Erro: " + e.getMessage(), user);
             }
         };
 
-        Runnable securedTask = DelegatingSecurityContextRunnable.create(task, securityContext);
-        Future<?> future = executor.submit(securedTask);
+        Future<?> future = executor.submit(task);
         runningStrategies.put(strategyName, future);
         return "🟢 Execução da estratégia iniciada: " + strategyName;
     }
@@ -127,7 +113,7 @@ public class StrategyRunnerService {
         Future<?> future = runningStrategies.remove(strategyName);
         if (future != null) {
             future.cancel(true);
-            publishLog(strategyName, "🛑 Estratégia parada: " + strategyName);
+            publishLog(strategyName, "🛑 Estratégia parada: " + strategyName, null);
             return "🛑 Estratégia parada: " + strategyName;
         } else {
             return "⚠️ Estratégia não estava em execução: " + strategyName;
@@ -141,29 +127,30 @@ public class StrategyRunnerService {
 
     public void registerLogSubscriber(String strategyName, FluxSink<String> sink) {
         logSubscribers.put(strategyName, sink);
-        publishLog(strategyName, "📡 Conectado para receber logs da estratégia '" + strategyName + "'");
+        publishLog(strategyName, "📡 Conectado para receber logs da estratégia '" + strategyName + "'", null);
     }
 
     public void unregisterLogSubscriber(String strategyName) {
         logSubscribers.remove(strategyName);
     }
 
-    private void publishLog(String strategyName, String logMessage) {
+    private void publishLog(String strategyName, String logMessage, User user) {
         log.info("[{}] {}", strategyName, logMessage);
         FluxSink<String> sink = logSubscribers.get(strategyName);
         if (sink != null) {
             sink.next(logMessage);
         }
 
-        try {
-            User user = getAuthenticatedUser();
-            StrategyExecutionLog logEntry = new StrategyExecutionLog();
-            logEntry.setStrategyName(strategyName);
-            logEntry.setMessage(logMessage);
-            logEntry.setUser(user);
-            strategyExecutionLogRepository.save(logEntry);
-        } catch (Exception e) {
-            log.warn("⚠️ Não foi possível salvar log no banco: {}", e.getMessage());
+        if (user != null) {
+            try {
+                StrategyExecutionLog logEntry = new StrategyExecutionLog();
+                logEntry.setStrategyName(strategyName);
+                logEntry.setMessage(logMessage);
+                logEntry.setUser(user);
+                strategyExecutionLogRepository.save(logEntry);
+            } catch (Exception e) {
+                log.warn("⚠️ Não foi possível salvar log no banco: {}", e.getMessage());
+            }
         }
     }
 
@@ -181,15 +168,6 @@ public class StrategyRunnerService {
         } catch (NumberFormatException e) {
             return 60_000L;
         }
-    }
-
-    private User getAuthenticatedUser() {
-        var context = SecurityContextHolder.getContext();
-        if (context == null || context.getAuthentication() == null || context.getAuthentication().getName() == null) {
-            throw new IllegalStateException("Usuário não autenticado no contexto");
-        }
-        String email = context.getAuthentication().getName();
-        return (User) userService.loadUserByUsername(email);
     }
 
     private String getApiKey(User user) {
