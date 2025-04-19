@@ -13,6 +13,9 @@ spring:
         connect-timeout: 5000
         response-timeout: 10s
 
+  main:
+    web-application-type: reactive
+
 logging:
   level:
     root: INFO
@@ -21,4 +24,8 @@ logging:
 
 
 jwt:
-  secret: 3BvNxQ9yV7wKdL0eM2u6rJ1xYzH5qA9z
+  secret: M4rrE9sfhX9bPqLmX8vA2sW7kLpN3dQzCvKbMvUtXzWsUrYpPtHsVkTsGcXqFrZuF
+
+
+
+
