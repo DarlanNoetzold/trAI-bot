@@ -46,8 +46,10 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
             Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
 
             String email = claims.getSubject();
-            String userId = claims.containsKey("userId") ? claims.get("userId", String.class) : "";
-            String role = claims.containsKey("role") ? claims.get("role", String.class) : "";
+            Object userIdObj = claims.get("userId");
+            String userId = userIdObj != null ? userIdObj.toString() : "";
+            Object roleObj = claims.get("role");
+            String role = roleObj != null ? roleObj.toString() : "";
 
             return chain.filter(
                     exchange.mutate()
