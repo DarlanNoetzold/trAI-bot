@@ -15,5 +15,7 @@ public class UserRegisterDTO {
     private String testnetSecretKey;
     private String productionApiKey;
     private String productionSecretKey;
+    private String whatsappNumber;
+    private String telegramChatId;
 }
 
