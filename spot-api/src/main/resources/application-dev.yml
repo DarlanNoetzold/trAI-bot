@@ -1,0 +1,20 @@
+binance:
+  testnet-api-url: https://testnet.binance.vision/api
+  production-api-url: https://api.binance.com/api
+  stream-url: wss://stream.testnet.binance.vision/ws
+  testnet-api-key: fPWYmJ0m9A3az7LRY9n9CemUgfZFbfxs89gAY8dAmpEniIfjAHqq1lrBKK4FYlk6
+  testnet-secret-key: tbxVqviaGc1IOxdopn9Y8nzRuUHu1wyputtmnIt9w7ca96mrxK91nvjrSjgBfRKE
+  production-api-key: OE00JQKAc6gLt4EpEDahpJrSffAl2RdwuPV5fO0XaurzBCmZ00m0UDtLZEaTucNP
+  production-secret-key: OGu5l24wWvvD9vRcSaQhw7BOH3wKP5dlE7AXkQ2bryDXMmXWI7DGJVVYYSxgOFFr
+  symbol: BTCUSDT
+  profitability: 1.1
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/cryptobot_test
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
