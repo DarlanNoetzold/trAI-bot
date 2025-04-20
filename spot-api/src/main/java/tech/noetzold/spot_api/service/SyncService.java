@@ -15,12 +15,12 @@ public class SyncService {
     private final BinanceMarketService marketService;
     private final BinanceAccountService accountService;
 
-    public List<List<Object>> syncCandles(String symbol, String interval, int limit) {
+    public List<List<Object>> syncCandles(String symbol, String interval, int limit, Map<String, String> headers) {
         log.info("📡 [syncCandles] Syncing candles | symbol={}, interval={}, limit={}", symbol, interval, limit);
-        return marketService.getCandles(symbol, interval, limit);
+        return marketService.getCandles(symbol, interval, limit, headers);
     }
 
-    public List<Map<String, Object>> syncAccountTrades(String symbol) {
+    public List<Map<String, Object>> syncAccountTrades(String symbol, Map<String, String> headers) {
         log.info("📡 [syncAccountTrades] Syncing account trades | symbol={}", symbol);
         return accountService.getAccountTrades(symbol, 1000);
     }
