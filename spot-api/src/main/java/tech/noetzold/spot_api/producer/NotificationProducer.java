@@ -19,33 +19,7 @@ public class NotificationProducer {
     private static final String EXCHANGE = "notifications.exchange";
     private static final String ROUTING_KEY = "notifications.key";
 
-    public void sendNotification(
-            String type,
-            String userEmail,
-            String userId,
-            String username,
-            String strategyName,
-            String symbol,
-            String environment,
-            String originApi,
-            String action,
-            Map<String, String> parameters
-    ) {
-
-        NotificationMessage message = NotificationMessage.builder()
-                .type(type)
-                .userEmail(userEmail)
-                .userId(userId)
-                .username(username)
-                .strategyName(strategyName)
-                .symbol(symbol)
-                .environment(environment)
-                .originApi(originApi)
-                .action(action)
-                .parameters(parameters)
-                .timestamp(Instant.now())
-                .build();
-
+    public void send(NotificationMessage message) {
         log.info("🔔 Enviando notificação para fila RabbitMQ: {}", message);
         rabbitTemplate.convertAndSend(EXCHANGE, ROUTING_KEY, message);
     }
