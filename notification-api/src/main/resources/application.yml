@@ -8,8 +8,12 @@ spring:
     password: guest
 
 server:
-  port: 8082
+  port: 8085
 
 logging:
   level:
     root: INFO
+
+
+telegram:
+  bot-token: 123456789:ABCdefGhIJKlmNOpQRsTuvWXyZ0123456789
