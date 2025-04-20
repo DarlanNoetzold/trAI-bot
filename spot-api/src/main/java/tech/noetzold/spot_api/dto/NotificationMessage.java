@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Map;
 
@@ -12,18 +13,16 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class NotificationMessage {
-
-    private String type;              // Ex: TRADE_EXECUTED, STRATEGY_STARTED
+public class NotificationMessage implements Serializable {
+    private String type;
     private String userEmail;
     private String userId;
     private String username;
     private String strategyName;
     private String symbol;
-    private String environment;       // TESTNET ou PRODUCTION
-    private String originApi;         // spot-api, strategy-api, etc.
-    private String action;            // Ex: "Placed Buy Order", "Started Strategy"
+    private String environment;
+    private String originApi;
+    private String action;
     private Map<String, String> parameters;
     private Instant timestamp;
 }
-
