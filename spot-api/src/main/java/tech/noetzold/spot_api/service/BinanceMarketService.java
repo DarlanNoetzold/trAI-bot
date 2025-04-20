@@ -30,7 +30,7 @@ public class BinanceMarketService {
         return symbol != null && !symbol.trim().isEmpty() && symbol.matches("[A-Z0-9]+");
     }
 
-    public List<List<Object>> getCandles(String symbol, String interval, int limit) {
+    public List<List<Object>> getCandles(String symbol, String interval, int limit, Map<String, String> headers) {
         if (!isSymbolValid(symbol)) {
             log.warn("⚠️ [getCandles] Símbolo inválido: {}", symbol);
             return Collections.emptyList();
@@ -54,6 +54,10 @@ public class BinanceMarketService {
                     .symbol(symbol)
                     .parameters(Map.of("interval", interval, "limit", String.valueOf(limit)))
                     .originApi("spot-api")
+                    .userEmail(headers.get("x-email"))
+                    .userId(headers.get("x-user-id"))
+                    .username(headers.get("x-username"))
+                    .environment(headers.get("x-binance-env"))
                     .timestamp(Instant.now())
                     .build());
 
@@ -67,7 +71,7 @@ public class BinanceMarketService {
         return Collections.emptyList();
     }
 
-    public Map<String, Object> getDepth(String symbol, int limit) {
+    public Map<String, Object> getDepth(String symbol, int limit, Map<String, String> headers) {
         if (!isSymbolValid(symbol)) {
             log.warn("⚠️ [getDepth] Símbolo inválido: {}", symbol);
             return Collections.emptyMap();
@@ -91,6 +95,10 @@ public class BinanceMarketService {
                     .symbol(symbol)
                     .parameters(Map.of("limit", String.valueOf(limit)))
                     .originApi("spot-api")
+                    .userEmail(headers.get("x-email"))
+                    .userId(headers.get("x-user-id"))
+                    .username(headers.get("x-username"))
+                    .environment(headers.get("x-binance-env"))
                     .timestamp(Instant.now())
                     .build());
 
@@ -102,7 +110,7 @@ public class BinanceMarketService {
         return Collections.emptyMap();
     }
 
-    public Map<String, Object> getLastPrice(String symbol) {
+    public Map<String, Object> getLastPrice(String symbol, Map<String, String> headers) {
         if (!isSymbolValid(symbol)) {
             log.warn("⚠️ [getLastPrice] Símbolo inválido: {}", symbol);
             return Collections.emptyMap();
@@ -125,6 +133,10 @@ public class BinanceMarketService {
                     .action("Requested Last Price")
                     .symbol(symbol)
                     .originApi("spot-api")
+                    .userEmail(headers.get("x-email"))
+                    .userId(headers.get("x-user-id"))
+                    .username(headers.get("x-username"))
+                    .environment(headers.get("x-binance-env"))
                     .timestamp(Instant.now())
                     .build());
 
@@ -136,7 +148,7 @@ public class BinanceMarketService {
         return Collections.emptyMap();
     }
 
-    public Map<String, Object> getBookTicker(String symbol) {
+    public Map<String, Object> getBookTicker(String symbol, Map<String, String> headers) {
         if (!isSymbolValid(symbol)) {
             log.warn("⚠️ [getBookTicker] Símbolo inválido: {}", symbol);
             return Collections.emptyMap();
@@ -159,6 +171,10 @@ public class BinanceMarketService {
                     .action("Requested Book Ticker")
                     .symbol(symbol)
                     .originApi("spot-api")
+                    .userEmail(headers.get("x-email"))
+                    .userId(headers.get("x-user-id"))
+                    .username(headers.get("x-username"))
+                    .environment(headers.get("x-binance-env"))
                     .timestamp(Instant.now())
                     .build());
 
@@ -170,7 +186,7 @@ public class BinanceMarketService {
         return Collections.emptyMap();
     }
 
-    public List<Map<String, Object>> getRecentTrades(String symbol, int limit) {
+    public List<Map<String, Object>> getRecentTrades(String symbol, int limit, Map<String, String> headers) {
         if (!isSymbolValid(symbol)) {
             log.warn("⚠️ [getRecentTrades] Símbolo inválido: {}", symbol);
             return Collections.emptyList();
@@ -195,6 +211,10 @@ public class BinanceMarketService {
                     .symbol(symbol)
                     .parameters(Map.of("limit", String.valueOf(limit)))
                     .originApi("spot-api")
+                    .userEmail(headers.get("x-email"))
+                    .userId(headers.get("x-user-id"))
+                    .username(headers.get("x-username"))
+                    .environment(headers.get("x-binance-env"))
                     .timestamp(Instant.now())
                     .build());
 
