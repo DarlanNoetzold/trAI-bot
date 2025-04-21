@@ -24,4 +24,5 @@ public class User {
     private String productionSecretKey;
     private String whatsappNumber;
     private String telegramChatId;
+    private String whatsappApiKey;
 }
