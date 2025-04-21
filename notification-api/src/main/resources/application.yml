@@ -16,4 +16,8 @@ logging:
 
 
 telegram:
-  bot-token: 123456789:ABCdefGhIJKlmNOpQRsTuvWXyZ0123456789
+  bot-token: 8086521677:AAG4OBuQ6bhz9c6h2mLT6l-TNRfdYaOcuJM
+
+
+whatsapp:
+  api-key: 7634858
