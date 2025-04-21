@@ -17,4 +17,5 @@ public class UserRegistrationDTO {
     private String binanceProductionSecretKey;
     private String whatsappNumber;
     private String telegramChatId;
+    private String whatsappApiKey;
 }
