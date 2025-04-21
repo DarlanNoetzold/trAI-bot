@@ -28,7 +28,9 @@ public class User implements UserDetails {
     private String productionApiKey;
     private String productionSecretKey;
 
-    // 👇 métodos obrigatórios da interface UserDetails
+    private String whatsappNumber;
+    private String telegramChatId;
+    private String whatsappApiKey;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
