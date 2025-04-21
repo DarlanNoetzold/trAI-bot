@@ -2,10 +2,10 @@ package tech.noetzold.notification_api.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import tech.noetzold.notification_api.dto.NotificationMessage;
-import tech.noetzold.notification_api.model.User;
 import tech.noetzold.notification_api.repository.UserRepository;
 
 import java.util.Map;
@@ -15,10 +15,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class WhatsAppService {
 
+    @Value("${whatsapp.api-key}")
+    private String apiKey;
+
     private final WebClient client = WebClient.create("https://api.callmebot.com");
     private final UserRepository userRepository;
-
-    private final String API_KEY = "SEU_API_KEY"; // Preferencialmente injetado via application.yml/env
 
     public void sendNotification(NotificationMessage message) {
         userRepository.findByEmail(message.getUserEmail()).ifPresentOrElse(user -> {
@@ -35,10 +36,11 @@ public class WhatsAppService {
                             .path("/whatsapp.php")
                             .queryParam("phone", phone)
                             .queryParam("text", formattedMessage)
-                            .queryParam("apikey", API_KEY)
+                            .queryParam("apikey", apiKey)
                             .build())
                     .retrieve()
                     .bodyToMono(String.class)
+                    .doOnError(error -> log.error("❌ Erro ao enviar mensagem WhatsApp: {}", error.getMessage()))
                     .subscribe(response -> log.info("✅ Mensagem enviada via WhatsApp: {}", response));
         }, () -> {
             log.warn("❌ Usuário não encontrado no banco: {}", message.getUserEmail());
