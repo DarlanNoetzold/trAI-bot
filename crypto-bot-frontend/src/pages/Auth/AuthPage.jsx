@@ -78,6 +78,7 @@ const ToggleButtons = styled.div`
   }
 `;
 
+
 export default function AuthPage({ onClose = () => {} }) {
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -94,6 +95,9 @@ export default function AuthPage({ onClose = () => {} }) {
     productionSecretKey: "",
     testnetApiKey: "",
     testnetSecretKey: "",
+    whatsappNumber: "",
+    telegramChatId: "",
+    whatsappApiKey: "",
   });
 
   const handleLogin = async () => {
@@ -196,6 +200,21 @@ export default function AuthPage({ onClose = () => {} }) {
               placeholder="Testnet Secret Key"
               value={registerForm.testnetSecretKey}
               onChange={(e) => setRegisterForm({ ...registerForm, testnetSecretKey: e.target.value })}
+            />
+            <input
+              placeholder="WhatsApp Number (+55...)"
+              value={registerForm.whatsappNumber}
+              onChange={(e) => setRegisterForm({ ...registerForm, whatsappNumber: e.target.value })}
+            />
+            <input
+              placeholder="Telegram Chat ID"
+              value={registerForm.telegramChatId}
+              onChange={(e) => setRegisterForm({ ...registerForm, telegramChatId: e.target.value })}
+            />
+            <input
+              placeholder="WhatsApp API Key"
+              value={registerForm.whatsappApiKey}
+              onChange={(e) => setRegisterForm({ ...registerForm, whatsappApiKey: e.target.value })}
             />
             <button onClick={handleRegister}>Register</button>
           </>
