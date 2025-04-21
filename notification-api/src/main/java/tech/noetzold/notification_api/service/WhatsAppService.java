@@ -18,15 +18,13 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class WhatsAppService {
 
-    @Value("${whatsapp.api-key}")
-    private String apiKey;
-
     private final WebClient client = WebClient.create("https://api.callmebot.com");
     private final UserRepository userRepository;
 
     public void sendNotification(NotificationMessage message) {
         userRepository.findByEmail(message.getUserEmail()).ifPresentOrElse(user -> {
             String phone = user.getWhatsappNumber();
+            String apiKey = user.getWhatsappApiKey();
             if (phone == null || phone.isBlank()) {
                 log.warn("❌ WhatsApp number não encontrado para o usuário {}", message.getUserEmail());
                 return;
