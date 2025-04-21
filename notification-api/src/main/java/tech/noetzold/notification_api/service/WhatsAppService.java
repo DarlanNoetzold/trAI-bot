@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import tech.noetzold.notification_api.dto.NotificationMessage;
 import tech.noetzold.notification_api.repository.UserRepository;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 
 import java.util.Map;
 
@@ -30,12 +33,20 @@ public class WhatsAppService {
             }
 
             String formattedMessage = formatMessage(message);
+            String encodedPhone = URLEncoder.encode(phone, StandardCharsets.UTF_8);
+            String encodedMessage = URLEncoder.encode(formattedMessage, StandardCharsets.UTF_8);
+
+            String url = "https://api.callmebot.com/whatsapp.php?phone=" + encodedPhone +
+                    "&text=" + encodedMessage + "&apikey=" + apiKey;
+
+            log.info("🔍 URL final: {}", url);
+
 
             client.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/whatsapp.php")
                             .queryParam("phone", phone)
-                            .queryParam("text", formattedMessage)
+                            .queryParam("text", encodedMessage)
                             .queryParam("apikey", apiKey)
                             .build())
                     .retrieve()
