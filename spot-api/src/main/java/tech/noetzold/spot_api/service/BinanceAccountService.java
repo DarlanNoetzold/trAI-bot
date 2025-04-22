@@ -10,9 +10,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import tech.noetzold.spot_api.config.BinanceProperties;
 import tech.noetzold.spot_api.context.BinanceEnvironmentContext;
+import tech.noetzold.spot_api.dto.NotificationMessage;
+import tech.noetzold.spot_api.producer.NotificationProducer;
 import tech.noetzold.spot_api.util.BinanceSignatureUtil;
 import tech.noetzold.spot_api.util.TimeUtil;
 
+import java.time.Instant;
 import java.util.*;
 
 @Slf4j
@@ -24,8 +27,9 @@ public class BinanceAccountService {
     private final WebClient binanceWebClient;
 
     private final BinanceProperties binanceProperties;
-    private final tech.noetzold.spot_api.context.BinanceEnvironmentContext environmentContext;
+    private final BinanceEnvironmentContext environmentContext;
     private final TimeUtil timeUtil;
+    private final NotificationProducer notificationProducer;
 
     public Map<String, Object> getAccountInfo() {
         long timestamp = timeUtil.getServerTimestamp();
@@ -36,13 +40,24 @@ public class BinanceAccountService {
         log.info("🌐 [getAccountInfo] Request URL: {}", url);
 
         try {
-            return binanceWebClient.get()
+            Map<String, Object> result = binanceWebClient.get()
                     .uri(url)
                     .retrieve()
                     .onStatus(HttpStatusCode::isError, response ->
                             response.bodyToMono(String.class).map(msg -> new RuntimeException("Erro Binance API: " + msg)))
                     .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
                     .block();
+
+            notificationProducer.send(NotificationMessage.builder()
+                    .type("ACCOUNT_DATA")
+                    .action("Requested Account Info")
+                    .originApi("spot-api")
+                    .environment(environmentContext.get().name())
+                    .parameters(Map.of("timestamp", String.valueOf(timestamp)))
+                    .timestamp(Instant.now())
+                    .build());
+
+            return result;
         } catch (WebClientResponseException e) {
             log.error("❌ [getAccountInfo] WebClient error: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
         } catch (Exception e) {
@@ -65,7 +80,7 @@ public class BinanceAccountService {
         log.info("🔗 [getAccountTrades] Request URL: {}", url);
 
         try {
-            return binanceWebClient.get()
+            List<Map<String, Object>> result = binanceWebClient.get()
                     .uri(url)
                     .retrieve()
                     .onStatus(HttpStatusCode::isError, response ->
@@ -73,6 +88,22 @@ public class BinanceAccountService {
                     .bodyToFlux(new ParameterizedTypeReference<Map<String, Object>>() {})
                     .collectList()
                     .block();
+
+            notificationProducer.send(NotificationMessage.builder()
+                    .type("ACCOUNT_DATA")
+                    .action("Requested Account Trades")
+                    .symbol(symbol)
+                    .originApi("spot-api")
+                    .environment(environmentContext.get().name())
+                    .parameters(Map.of(
+                            "symbol", symbol,
+                            "limit", String.valueOf(limit != null ? limit : 500),
+                            "timestamp", String.valueOf(timestamp)
+                    ))
+                    .timestamp(Instant.now())
+                    .build());
+
+            return result;
         } catch (WebClientResponseException e) {
             log.error("❌ [getAccountTrades] WebClient error: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
         } catch (Exception e) {
