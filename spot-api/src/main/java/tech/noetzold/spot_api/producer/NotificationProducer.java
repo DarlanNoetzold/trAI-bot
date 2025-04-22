@@ -6,9 +6,6 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 import tech.noetzold.spot_api.dto.NotificationMessage;
 
-import java.time.Instant;
-import java.util.Map;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
