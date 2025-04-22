@@ -3,10 +3,14 @@ package tech.noetzold.strategy_api.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import tech.noetzold.strategy_api.dto.NotificationMessage;
 import tech.noetzold.strategy_api.model.Strategy;
+import tech.noetzold.strategy_api.producer.NotificationProducer;
 import tech.noetzold.strategy_api.repository.StrategyRepository;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -15,10 +19,14 @@ import java.util.Optional;
 public class StrategyService {
 
     private final StrategyRepository strategyRepository;
+    private final NotificationProducer notificationProducer;
 
     public Strategy saveStrategy(Strategy strategy) {
         log.info("💾 [saveStrategy] Saving strategy: {}", strategy.getName());
-        return strategyRepository.save(strategy);
+        Strategy saved = strategyRepository.save(strategy);
+
+        sendNotification("STRATEGY_CREATED", "Saved Strategy", saved);
+        return saved;
     }
 
     public List<Strategy> listAllStrategies() {
@@ -33,7 +41,10 @@ public class StrategyService {
 
     public void deleteStrategy(Long id) {
         log.info("🗑️ [deleteStrategy] Deleting strategy with ID: {}", id);
-        strategyRepository.deleteById(id);
+        strategyRepository.findById(id).ifPresent(strategy -> {
+            strategyRepository.deleteById(id);
+            sendNotification("STRATEGY_DELETED", "Deleted Strategy", strategy);
+        });
     }
 
     public Strategy activateStrategy(Long id) {
@@ -44,7 +55,10 @@ public class StrategyService {
                     return new RuntimeException("Strategy not found");
                 });
         strategy.setActive(true);
-        return strategyRepository.save(strategy);
+        Strategy saved = strategyRepository.save(strategy);
+
+        sendNotification("STRATEGY_ACTIVATED", "Activated Strategy", saved);
+        return saved;
     }
 
     public Strategy deactivateStrategy(Long id) {
@@ -55,6 +69,24 @@ public class StrategyService {
                     return new RuntimeException("Strategy not found");
                 });
         strategy.setActive(false);
-        return strategyRepository.save(strategy);
+        Strategy saved = strategyRepository.save(strategy);
+
+        sendNotification("STRATEGY_DEACTIVATED", "Deactivated Strategy", saved);
+        return saved;
+    }
+
+    private void sendNotification(String type, String action, Strategy strategy) {
+        notificationProducer.send(NotificationMessage.builder()
+                .type(type)
+                .action(action)
+                .strategyName(strategy.getName())
+                .originApi("strategy-api")
+                .timestamp(Instant.now())
+                .parameters(Map.of(
+                        "id", String.valueOf(strategy.getId()),
+                        "description", strategy.getDescription() != null ? strategy.getDescription() : "",
+                        "active", String.valueOf(strategy.isActive())
+                ))
+                .build());
     }
 }
