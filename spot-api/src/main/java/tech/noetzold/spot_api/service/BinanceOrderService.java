@@ -8,16 +8,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import tech.noetzold.spot_api.config.BinanceProperties;
 import tech.noetzold.spot_api.context.BinanceEnvironmentContext;
+import tech.noetzold.spot_api.dto.NotificationMessage;
 import tech.noetzold.spot_api.dto.OrderOcoRequestDTO;
 import tech.noetzold.spot_api.dto.OrderRequestDTO;
 import tech.noetzold.spot_api.enums.BinanceEnvironment;
+import tech.noetzold.spot_api.producer.NotificationProducer;
 import tech.noetzold.spot_api.util.BinanceSignatureUtil;
 import tech.noetzold.spot_api.util.TimeUtil;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.Instant;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -29,6 +29,7 @@ public class BinanceOrderService {
 
     private final BinanceProperties binanceProperties;
     private final TimeUtil timeUtil;
+    private final NotificationProducer notificationProducer;
 
     private String getBaseUrl() {
         return BinanceEnvironmentContext.get() == BinanceEnvironment.PRODUCTION
@@ -37,7 +38,10 @@ public class BinanceOrderService {
     }
 
     public Map<String, Object> placeOrder(OrderRequestDTO request) {
-        return performSignedPost("/v3/order", buildOrderParams(request));
+        Map<String, Object> result = performSignedPost("/v3/order", buildOrderParams(request));
+
+        sendNotification("PLACE_ORDER", "Placed Spot Order", request.getSymbol(), buildOrderParams(request));
+        return result;
     }
 
     public Map<String, Object> placeOcoOrder(OrderOcoRequestDTO request) {
@@ -49,7 +53,11 @@ public class BinanceOrderService {
         params.put("stopPrice", request.getStopPrice().toString());
         params.put("stopLimitPrice", request.getStopLimitPrice().toString());
         params.put("timeInForce", request.getTimeInForce());
-        return performSignedPost("/v3/order/oco", params);
+
+        Map<String, Object> result = performSignedPost("/v3/order/oco", params);
+
+        sendNotification("PLACE_OCO", "Placed OCO Order", request.getSymbol(), params);
+        return result;
     }
 
     public Map<String, Object> cancelOrder(String symbol, Long orderId, String origClientOrderId) {
@@ -57,7 +65,10 @@ public class BinanceOrderService {
         params.put("symbol", symbol);
         if (orderId != null) params.put("orderId", orderId.toString());
         if (origClientOrderId != null) params.put("origClientOrderId", origClientOrderId);
-        return performSignedDelete("/v3/order", params);
+
+        Map<String, Object> result = performSignedDelete("/v3/order", params);
+        sendNotification("CANCEL_ORDER", "Canceled Order", symbol, params);
+        return result;
     }
 
     public Map<String, Object> cancelOcoOrder(String symbol, Long orderListId, String listClientOrderId) {
@@ -65,7 +76,10 @@ public class BinanceOrderService {
         params.put("symbol", symbol);
         if (orderListId != null) params.put("orderListId", orderListId.toString());
         if (listClientOrderId != null) params.put("listClientOrderId", listClientOrderId);
-        return performSignedDelete("/v3/orderList", params);
+
+        Map<String, Object> result = performSignedDelete("/v3/orderList", params);
+        sendNotification("CANCEL_OCO", "Canceled OCO Order", symbol, params);
+        return result;
     }
 
     public List<Map<String, Object>> getOpenOrders(String symbol) {
@@ -150,5 +164,17 @@ public class BinanceOrderService {
                 .reduce((a, b) -> a + "&" + b).orElse("");
         String signature = BinanceSignatureUtil.generateSignature(query, binanceProperties.getDynamicSecretKey());
         return query + "&signature=" + signature;
+    }
+
+    private void sendNotification(String type, String action, String symbol, Map<String, String> params) {
+        notificationProducer.send(NotificationMessage.builder()
+                .type(type)
+                .action(action)
+                .symbol(symbol)
+                .parameters(params)
+                .originApi("spot-api")
+                .environment(BinanceEnvironmentContext.get().name())
+                .timestamp(Instant.now())
+                .build());
     }
 }
