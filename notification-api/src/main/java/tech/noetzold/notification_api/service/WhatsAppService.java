@@ -2,15 +2,13 @@ package tech.noetzold.notification_api.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import tech.noetzold.notification_api.dto.NotificationMessage;
 import tech.noetzold.notification_api.repository.UserRepository;
+
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-
-
 import java.util.Map;
 
 @Slf4j
@@ -25,20 +23,19 @@ public class WhatsAppService {
         userRepository.findByEmail(message.getUserEmail()).ifPresentOrElse(user -> {
             String phone = user.getWhatsappNumber();
             String apiKey = user.getWhatsappApiKey();
+
             if (phone == null || phone.isBlank()) {
                 log.warn("❌ WhatsApp number não encontrado para o usuário {}", message.getUserEmail());
                 return;
             }
 
+            if (apiKey == null || apiKey.isBlank()) {
+                log.warn("❌ API key do WhatsApp não encontrada para o usuário {}", message.getUserEmail());
+                return;
+            }
+
             String formattedMessage = formatMessage(message);
-            String encodedPhone = URLEncoder.encode(phone, StandardCharsets.UTF_8);
             String encodedMessage = URLEncoder.encode(formattedMessage, StandardCharsets.UTF_8);
-
-            String url = "https://api.callmebot.com/whatsapp.php?phone=" + encodedPhone +
-                    "&text=" + encodedMessage + "&apikey=" + apiKey;
-
-            log.info("🔍 URL final: {}", url);
-
 
             client.get()
                     .uri(uriBuilder -> uriBuilder
@@ -49,7 +46,8 @@ public class WhatsAppService {
                             .build())
                     .retrieve()
                     .bodyToMono(String.class)
-                    .doOnError(error -> log.error("❌ Erro ao enviar mensagem WhatsApp: {}", error.getMessage()))
+                    .doOnError(error -> log.error("❌ Erro ao enviar mensagem via WhatsApp: {}", error.getMessage()))
+                    .retry(2)
                     .subscribe(response -> log.info("✅ Mensagem enviada via WhatsApp: {}", response));
         }, () -> {
             log.warn("❌ Usuário não encontrado no banco: {}", message.getUserEmail());
@@ -64,10 +62,15 @@ public class WhatsAppService {
         sb.append("📈 Símbolo: ").append(msg.getSymbol()).append("\n");
         sb.append("🕒 ").append(msg.getTimestamp()).append("\n");
         sb.append("🔧 Origem: ").append(msg.getOriginApi()).append(" | ").append(msg.getEnvironment()).append("\n");
-        sb.append("📦 Parâmetros:\n");
-        for (Map.Entry<String, String> entry : msg.getParameters().entrySet()) {
-            sb.append("• ").append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
+
+        Map<String, String> parameters = msg.getParameters();
+        if (parameters != null && !parameters.isEmpty()) {
+            sb.append("📦 Parâmetros:\n");
+            parameters.forEach((key, value) ->
+                    sb.append("• ").append(key).append(": ").append(value).append("\n")
+            );
         }
+
         return sb.toString();
     }
 }
