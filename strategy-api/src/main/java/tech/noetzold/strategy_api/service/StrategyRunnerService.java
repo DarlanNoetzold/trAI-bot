@@ -1,17 +1,21 @@
 package tech.noetzold.strategy_api.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.FluxSink;
 import tech.noetzold.strategy_api.context.BinanceEnvironmentContext;
+import tech.noetzold.strategy_api.dto.NotificationMessage;
 import tech.noetzold.strategy_api.enums.BinanceEnvironment;
 import tech.noetzold.strategy_api.model.CustomStrategy;
 import tech.noetzold.strategy_api.model.StrategyExecutionLog;
 import tech.noetzold.strategy_api.model.User;
+import tech.noetzold.strategy_api.producer.NotificationProducer;
 import tech.noetzold.strategy_api.repository.CustomStrategyRepository;
 import tech.noetzold.strategy_api.repository.StrategyExecutionLogRepository;
 import tech.noetzold.strategy_api.strategy.BaseStrategy;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -26,17 +30,19 @@ public class StrategyRunnerService {
     private final Map<String, FluxSink<String>> logSubscribers = new ConcurrentHashMap<>();
     private final StrategyExecutionLogRepository strategyExecutionLogRepository;
     private final CustomStrategyRepository customStrategyRepository;
+    private final NotificationProducer notificationProducer;
 
     public StrategyRunnerService(List<BaseStrategy> strategyBeanList,
                                  StrategyExecutionLogRepository strategyExecutionLogRepository,
-                                 CustomStrategyRepository customStrategyRepository) {
+                                 CustomStrategyRepository customStrategyRepository,
+                                 NotificationProducer notificationProducer) {
         this.strategyExecutionLogRepository = strategyExecutionLogRepository;
         this.customStrategyRepository = customStrategyRepository;
+        this.notificationProducer = notificationProducer;
 
-        // 🛠️ Substituindo tentativa de usar valor de anotação @Service por nome da classe em lowercase
         this.strategyBeans = strategyBeanList.stream()
                 .collect(Collectors.toMap(
-                        bean -> bean.getClass().getSimpleName().toLowerCase(),  // nome da classe como chave
+                        bean -> bean.getClass().getSimpleName().toLowerCase(),
                         bean -> bean
                 ));
     }
@@ -56,7 +62,9 @@ public class StrategyRunnerService {
                 String apiKey = getApiKey(user);
                 String secretKey = getSecretKey(user);
                 log.info("🚀 Executando estratégia fixa: {} com usuário {}", strategyName, user.getEmail());
-                return strategy.run(params, apiKey, secretKey);
+                String result = strategy.run(params, apiKey, secretKey);
+                sendToNotificationQueue(user, strategyName, result, params);
+                return result;
             } catch (Exception e) {
                 log.error("❌ Erro ao executar estratégia fixa", e);
                 return "Erro: " + e.getMessage();
@@ -69,7 +77,9 @@ public class StrategyRunnerService {
                     String secretKey = getSecretKey(user);
                     CustomStrategy custom = customOpt.get();
                     log.info("🚀 Executando estratégia customizada: {} para {}", strategyName, user.getEmail());
-                    return custom.execute(params, apiKey, secretKey);
+                    String result = custom.execute(params, apiKey, secretKey);
+                    sendToNotificationQueue(user, strategyName, result, params);
+                    return result;
                 } catch (Exception e) {
                     log.error("❌ Erro ao executar estratégia customizada", e);
                     return "Erro na custom strategy: " + e.getMessage();
@@ -152,6 +162,23 @@ public class StrategyRunnerService {
                 log.warn("⚠️ Não foi possível salvar log no banco: {}", e.getMessage());
             }
         }
+    }
+
+    private void sendToNotificationQueue(User user, String strategyName, String action, Map<String, String> parameters) {
+        NotificationMessage message = new NotificationMessage();
+        message.setUserEmail(user.getEmail());
+        message.setUserId(String.valueOf(user.getId()));
+        message.setUsername(user.getUsername());
+        message.setStrategyName(strategyName);
+        message.setType("MARKET_DATA");
+        message.setSymbol(parameters.getOrDefault("symbol", ""));
+        message.setOriginApi("strategy-api");
+        message.setAction(action);
+        message.setParameters(parameters);
+        message.setEnvironment(BinanceEnvironmentContext.get().name());
+        message.setTimestamp(Instant.now());
+
+        notificationProducer.send(message);
     }
 
     private long getIntervalInMillis(String intervalParam) {
