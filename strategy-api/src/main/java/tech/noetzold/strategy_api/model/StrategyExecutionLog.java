@@ -1,5 +1,6 @@
 package tech.noetzold.strategy_api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -17,6 +18,7 @@ public class StrategyExecutionLog {
     private String strategyName;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private User user;
 
     @Column(length = 3000)
