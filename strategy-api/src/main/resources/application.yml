@@ -6,6 +6,8 @@ spring:
     port: 5672
     username: guest
     password: guest
+  application:
+    name: strategy-api
 
 
 server:
@@ -22,7 +24,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, info, prometheus
+        include: "*"
   endpoint:
     prometheus:
       enabled: true
@@ -30,5 +32,3 @@ management:
     export:
       prometheus:
         enabled: true
-  server:
-    port: 8083
