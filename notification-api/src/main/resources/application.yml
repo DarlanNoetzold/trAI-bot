@@ -6,6 +6,8 @@ spring:
     port: 5672
     username: guest
     password: guest
+  application:
+    name: notification-api
 
 server:
   port: 8085
@@ -23,7 +25,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, info, prometheus
+        include: "*"
   endpoint:
     prometheus:
       enabled: true
@@ -31,5 +33,3 @@ management:
     export:
       prometheus:
         enabled: true
-  server:
-    port: 8085
