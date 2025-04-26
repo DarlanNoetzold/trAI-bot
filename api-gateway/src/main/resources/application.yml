@@ -1,12 +1,23 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
 server:
   port: 8080
 
 spring:
   application:
     name: api-gateway
-
   cloud:
     gateway:
+      actuator:
+        enabled: true
       default-filters:
         - AddResponseHeader=X-GATEWAY, crypto-bot-gateway
       httpclient:
@@ -27,18 +38,4 @@ jwt:
   secret: M4rrE9sfhX9bPqLmX8vA2sW7kLpN3dQzCvKbMvUtXzWsUrYpPtHsVkTsGcXqFrZuF
 
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health, info, prometheus
-  endpoint:
-    prometheus:
-      enabled: true
-  metrics:
-    export:
-      prometheus:
-        enabled: true
-  server:
-    port: 8080
 
