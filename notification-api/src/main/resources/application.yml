@@ -17,3 +17,19 @@ logging:
 
 telegram:
   bot-token: 8086521677:AAG4OBuQ6bhz9c6h2mLT6l-TNRfdYaOcuJM
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus
+  endpoint:
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+  server:
+    port: 8085
