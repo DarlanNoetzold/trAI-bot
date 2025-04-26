@@ -27,8 +27,8 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getPath().toString();
 
-        // Allow /api/auth/** without token
-        if (path.startsWith("/api/auth")) {
+        // Allow /api/auth/** and /actuator/** without token
+        if (path.startsWith("/api/auth") || path.startsWith("/actuator")) {
             return chain.filter(exchange);
         }
 
@@ -55,8 +55,8 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
                     exchange.mutate()
                             .request(builder -> builder
                                     .header("X-EMAIL", email)
-                                    .header("X-USER-ID", userId != null ? userId : "")
-                                    .header("X-ROLE", role != null ? role : ""))
+                                    .header("X-USER-ID", userId)
+                                    .header("X-ROLE", role))
                             .build()
             );
 
