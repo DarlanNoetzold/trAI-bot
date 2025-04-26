@@ -1,6 +1,8 @@
 spring:
   profiles:
     active: dev
+  application:
+    name: futures-api
 
 server:
   port: 8084
@@ -12,12 +14,11 @@ logging:
 jwt:
   secret: a7Zml3kERUdv1tG64g2W9D3rCu8FvXy98lM5aDhzVPVb9BzRkK28PmQdUqU5YQzX
 
-
 management:
   endpoints:
     web:
       exposure:
-        include: health, info, prometheus
+        include: "*"
   endpoint:
     prometheus:
       enabled: true
@@ -25,5 +26,3 @@ management:
     export:
       prometheus:
         enabled: true
-  server:
-    port: 8084
