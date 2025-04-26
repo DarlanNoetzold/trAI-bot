@@ -13,3 +13,17 @@ jwt:
   secret: M4rrE9sfhX9bPqLmX8vA2sW7kLpN3dQzCvKbMvUtXzWsUrYpPtHsVkTsGcXqFrZuF
 
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus
+  endpoint:
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+  server:
+    port: 8081
