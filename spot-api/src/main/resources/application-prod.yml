@@ -20,13 +20,14 @@ spring:
     show-sql: true
 
 management:
+  prometheus:
+    metrics:
+      export:
+        enabled: true
   endpoints:
     web:
       exposure:
         include: "*"
-  endpoint:
-    prometheus:
-      enabled: true
   metrics:
     export:
       prometheus:
