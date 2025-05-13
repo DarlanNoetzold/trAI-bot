@@ -3,30 +3,24 @@
 
     <property name="LOG_PATH" value="logs"/>
 
-    <!-- Console log pattern -->
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <!-- File appender for all logs -->
     <appender name="RollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/app.log</file>
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- daily rollover -->
             <fileNamePattern>${LOG_PATH}/archive/app.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
-            <!-- keep logs for 30 days -->
             <maxHistory>30</maxHistory>
-            <!-- total size cap (optional) -->
             <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
     </appender>
 
-    <!-- Separate file for ERROR logs -->
     <appender name="ErrorFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/error.log</file>
         <encoder>
@@ -41,7 +35,6 @@
         </filter>
     </appender>
 
-    <!-- Root logger -->
     <root level="INFO">
         <appender-ref ref="Console" />
         <appender-ref ref="RollingFile" />
