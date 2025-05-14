@@ -14,7 +14,7 @@ management:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/cryptobot_test
+    url: jdbc:postgresql://custom-postgres:5432/cryptobot_test
     username: postgres
     password: postgres
   jpa:
@@ -22,7 +22,7 @@ spring:
       ddl-auto: update
     show-sql: true
   rabbitmq:
-    host: localhost
+    host: custom-rabbitmq
     port: 5672
     username: guest
     password: guest
