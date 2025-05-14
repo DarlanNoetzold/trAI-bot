@@ -1,0 +1,375 @@
+---
+# custom-postgres
+kind: Deployment
+metadata:
+  name: custom-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: custom-postgres
+  template:
+    metadata:
+      labels:
+        app: custom-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: custom-postgres:latest
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: cryptobot_test
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: postgres
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: custom-postgres
+spec:
+  selector:
+    app: custom-postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+
+---
+# custom-rabbitmq
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: custom-rabbitmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: custom-rabbitmq
+  template:
+    metadata:
+      labels:
+        app: custom-rabbitmq
+    spec:
+      containers:
+        - name: rabbitmq
+          image: custom-rabbitmq:latest
+          ports:
+            - containerPort: 5672
+            - containerPort: 15672
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              value: guest
+            - name: RABBITMQ_DEFAULT_PASS
+              value: guest
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: custom-rabbitmq
+spec:
+  selector:
+    app: custom-rabbitmq
+  ports:
+    - port: 5672
+      targetPort: 5672
+    - port: 15672
+      targetPort: 15672
+
+---
+# custom-prometheus
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: custom-prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: custom-prometheus
+  template:
+    metadata:
+      labels:
+        app: custom-prometheus
+    spec:
+      containers:
+        - name: prometheus
+          image: custom-prometheus:latest
+          ports:
+            - containerPort: 9090
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: custom-prometheus
+spec:
+  selector:
+    app: custom-prometheus
+  ports:
+    - port: 9090
+      targetPort: 9090
+
+---
+# custom-grafana
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: custom-grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: custom-grafana
+  template:
+    metadata:
+      labels:
+        app: custom-grafana
+    spec:
+      containers:
+        - name: grafana
+          image: custom-grafana:latest
+          ports:
+            - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: custom-grafana
+spec:
+  selector:
+    app: custom-grafana
+  ports:
+    - port: 3000
+      targetPort: 3000
+
+# auth-api
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-api
+  template:
+    metadata:
+      labels:
+        app: auth-api
+    spec:
+      containers:
+        - name: auth-api
+          image: auth-api:latest
+          ports:
+            - containerPort: 8081
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-api
+spec:
+  selector:
+    app: auth-api
+  ports:
+    - port: 8081
+      targetPort: 8081
+
+---
+# spot-api
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spot-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spot-api
+  template:
+    metadata:
+      labels:
+        app: spot-api
+    spec:
+      containers:
+        - name: spot-api
+          image: spot-api:latest
+          ports:
+            - containerPort: 8082
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spot-api
+spec:
+  selector:
+    app: spot-api
+  ports:
+    - port: 8082
+      targetPort: 8082
+
+---
+# strategy-api
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: strategy-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: strategy-api
+  template:
+    metadata:
+      labels:
+        app: strategy-api
+    spec:
+      containers:
+        - name: strategy-api
+          image: strategy-api:latest
+          ports:
+            - containerPort: 8083
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: strategy-api
+spec:
+  selector:
+    app: strategy-api
+  ports:
+    - port: 8083
+      targetPort: 8083
+
+---
+# futures-api
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: futures-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: futures-api
+  template:
+    metadata:
+      labels:
+        app: futures-api
+    spec:
+      containers:
+        - name: futures-api
+          image: futures-api:latest
+          ports:
+            - containerPort: 8084
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: futures-api
+spec:
+  selector:
+    app: futures-api
+  ports:
+    - port: 8084
+      targetPort: 8084
+
+---
+# notification-api
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-api
+  template:
+    metadata:
+      labels:
+        app: notification-api
+    spec:
+      containers:
+        - name: notification-api
+          image: notification-api:latest
+          ports:
+            - containerPort: 8085
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-api
+spec:
+  selector:
+    app: notification-api
+  ports:
+    - port: 8085
+      targetPort: 8085
+
+---
+# api-gateway
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - name: api-gateway
+          image: api-gateway:latest
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+spec:
+  selector:
+    app: api-gateway
+  ports:
+    - port: 8080
+      targetPort: 8080
+
+---
+# ds
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ds
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ds
+  template:
+    metadata:
+      labels:
+        app: ds
+    spec:
+      containers:
+        - name: ds
+          image: ds:latest
+          ports:
+            - containerPort: 9991
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ds
+spec:
+  selector:
+    app: ds
+  ports:
+    - port: 9991
+      targetPort: 9991
