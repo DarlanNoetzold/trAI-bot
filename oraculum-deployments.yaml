@@ -1,5 +1,6 @@
 ---
 # custom-postgres
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: custom-postgres
@@ -143,7 +144,7 @@ spec:
   ports:
     - port: 3000
       targetPort: 3000
-
+---
 # auth-api
 apiVersion: apps/v1
 kind: Deployment
