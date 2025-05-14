@@ -16,6 +16,7 @@ spec:
     spec:
       containers:
         - name: postgres
+          imagePullPolicy: IfNotPresent
           image: custom-postgres:latest
           ports:
             - containerPort: 5432
@@ -56,6 +57,7 @@ spec:
     spec:
       containers:
         - name: rabbitmq
+          imagePullPolicy: IfNotPresent
           image: custom-rabbitmq:latest
           ports:
             - containerPort: 5672
@@ -97,6 +99,7 @@ spec:
     spec:
       containers:
         - name: prometheus
+          imagePullPolicy: IfNotPresent
           image: custom-prometheus:latest
           ports:
             - containerPort: 9090
@@ -130,6 +133,7 @@ spec:
     spec:
       containers:
         - name: grafana
+          imagePullPolicy: IfNotPresent
           image: custom-grafana:latest
           ports:
             - containerPort: 3000
@@ -162,6 +166,7 @@ spec:
     spec:
       containers:
         - name: auth-api
+          imagePullPolicy: IfNotPresent
           image: auth-api:latest
           ports:
             - containerPort: 8081
@@ -195,6 +200,7 @@ spec:
     spec:
       containers:
         - name: spot-api
+          imagePullPolicy: IfNotPresent
           image: spot-api:latest
           ports:
             - containerPort: 8082
@@ -228,6 +234,7 @@ spec:
     spec:
       containers:
         - name: strategy-api
+          imagePullPolicy: IfNotPresent
           image: strategy-api:latest
           ports:
             - containerPort: 8083
@@ -261,6 +268,7 @@ spec:
     spec:
       containers:
         - name: futures-api
+          imagePullPolicy: IfNotPresent
           image: futures-api:latest
           ports:
             - containerPort: 8084
@@ -294,6 +302,7 @@ spec:
     spec:
       containers:
         - name: notification-api
+          imagePullPolicy: IfNotPresent
           image: notification-api:latest
           ports:
             - containerPort: 8085
@@ -327,6 +336,7 @@ spec:
     spec:
       containers:
         - name: api-gateway
+          imagePullPolicy: IfNotPresent
           image: api-gateway:latest
           ports:
             - containerPort: 8080
@@ -360,6 +370,7 @@ spec:
     spec:
       containers:
         - name: ds
+          imagePullPolicy: IfNotPresent
           image: ds:latest
           ports:
             - containerPort: 9991
