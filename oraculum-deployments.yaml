@@ -385,3 +385,41 @@ spec:
   ports:
     - port: 9991
       targetPort: 9991
+---
+# trai-frontend (React app rodando em modo dev na porta 3000)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trai-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: trai-frontend
+  template:
+    metadata:
+      labels:
+        app: trai-frontend
+    spec:
+      containers:
+        - name: trai-frontend
+          imagePullPolicy: IfNotPresent
+          image: trai-frontend:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: HOST
+              value: "0.0.0.0"
+            - name: PORT
+              value: "3000"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: trai-frontend
+spec:
+  selector:
+    app: trai-frontend
+  ports:
+    - port: 3000
+      targetPort: 3000
