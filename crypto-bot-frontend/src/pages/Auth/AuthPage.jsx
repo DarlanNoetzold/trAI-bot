@@ -101,7 +101,7 @@ export default function AuthPage({ onClose = () => {} }) {
   });
 
   const handleLogin = async () => {
-    const res = await fetch("http://localhost:8080/api/auth/login", {
+    const res = await fetch("http://api-gateway:8080/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(loginForm),
@@ -116,7 +116,7 @@ export default function AuthPage({ onClose = () => {} }) {
   };
 
   const handleRegister = async () => {
-    const res = await fetch("http://localhost:8080/api/auth/register", {
+    const res = await fetch("http://api-gateway:8080/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(registerForm),
