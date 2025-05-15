@@ -346,12 +346,12 @@ kind: Service
 metadata:
   name: api-gateway
 spec:
+  type: LoadBalancer
   selector:
     app: api-gateway
   ports:
     - port: 8080
       targetPort: 8080
-
 ---
 # ds
 apiVersion: apps/v1
