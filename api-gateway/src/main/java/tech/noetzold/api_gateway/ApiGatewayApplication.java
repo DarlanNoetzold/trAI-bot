@@ -16,13 +16,13 @@ public class ApiGatewayApplication {
 	public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
 		return builder.routes()
 				.route("auth-api", r -> r.path("/api/auth/**")
-						.uri("http://localhost:8081"))
+						.uri("http://auth-api:8081"))
 				.route("spot-api", r -> r.path("/api/account/**", "/api/market/**", "/api/trade/**")
-						.uri("http://localhost:8082"))
+						.uri("http://spot-api:8082"))
 				.route("strategy-api", r -> r.path("/api/strategies/**", "/api/custom-strategies/**", "/api/logs/**")
-						.uri("http://localhost:8083"))
+						.uri("http://strategy-api:8083"))
 				.route("futures-api", r -> r.path("/api/futures/**")
-						.uri("http://localhost:8084"))
+						.uri("http://futures-api:8084"))
 				.build();
 	}
 }
