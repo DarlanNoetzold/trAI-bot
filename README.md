@@ -125,6 +125,57 @@ For the React frontend, make sure to set `REACT_APP_API_URL` correctly at build 
 ```bash
 docker build --build-arg REACT_APP_API_URL=http://<external-ip>:8080/api -t trai-frontend .
 ```
+
+# ✅ To-Do List - Oraculum Micro-SaaS
+
+## 🧠 Functional & Back-End
+- [ ] Create `user-profile-api` to manage user preferences and Binance keys
+- [ ] Store strategy execution logs in PostgreSQL
+- [ ] Generate performance reports for strategies (success rate, profit, drawdown)
+- [ ] Implement a `scheduler-api` to trigger strategies automatically
+- [ ] Add user roles and permissions (`ADMIN`, `TRADER`, `VIEWER`)
+- [ ] Implement action auditing (login, trade, strategy execution)
+- [ ] Create centralized config service (`config-api` or Spring Cloud Config)
+- [ ] Add rate limiting, retry and circuit breaker to `api-gateway` (Resilience4j)
+
+## 🛡 Security
+- [ ] Add JWT expiration and refresh token mechanism
+- [ ] Restrict API access based on user roles
+- [ ] Log all security-related events (auth failures, suspicious patterns)
+
+## 📊 Monitoring & Observability
+- [ ] Add custom Prometheus metrics for each service
+- [ ] Configure Grafana dashboards per strategy and user
+- [ ] Expose actuator endpoints via gateway with proper auth
+
+## 🧪 Testing
+- [ ] Write unit tests for all core APIs
+- [ ] Add integration tests using TestContainers
+- [ ] Create E2E tests for frontend with Cypress
+
+## 🖥 Frontend (React)
+- [ ] Display user strategy history with logs and metrics
+- [ ] Create dashboard with active strategies and live updates
+- [ ] Visualize trades and price data with charting libraries
+- [ ] Enable dynamic configuration of strategies
+
+## 🚀 DevOps & Deployment
+- [ ] Create Helm chart for Kubernetes deployment
+- [ ] Set up GitHub Actions or GitLab CI for full CI/CD
+- [ ] Deploy to remote Kubernetes cluster (DigitalOcean, GKE, etc.)
+- [ ] Create backup and restore routine for PostgreSQL and Redis
+
+## 🧾 Documentation
+- [ ] Add Swagger/OpenAPI docs for all Spring Boot APIs
+- [ ] Create developer onboarding guide
+- [ ] Document architecture and communication flow (with diagrams)
+
+## 💳 Optional: SaaS Features
+- [ ] Add subscription plans and Stripe integration
+- [ ] Block premium features for non-paid users
+- [ ] Send monthly usage reports to users
+
+
 ⭐️ From [DarlanNoetzold](https://github.com/DarlanNoetzold)
 ---
 
