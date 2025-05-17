@@ -1,3 +1,78 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  main:
+    web-application-type: reactive
+
+  cloud:
+    gateway:
+      actuator:
+        enabled: true
+      default-filters:
+        - AddResponseHeader=X-GATEWAY, crypto-bot-gateway
+      httpclient:
+        connect-timeout: 5000
+        response-timeout: 10s
+      routes:
+        - id: auth-api
+          uri: http://auth-api:8081
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+            - name: Retry
+              args:
+                retries: 3
+                statuses: BAD_GATEWAY, GATEWAY_TIMEOUT, INTERNAL_SERVER_ERROR
+                methods: GET, POST
+            - name: CircuitBreaker
+              args:
+                name: authCircuitBreaker
+                fallbackUri: forward:/fallback/auth
+
+        - id: spot-api
+          uri: http://spot-api:8082
+          predicates:
+            - Path=/api/account/**,/api/market/**,/api/trade/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: spotCircuitBreaker
+                fallbackUri: forward:/fallback/spot
+
+        - id: strategy-api
+          uri: http://strategy-api:8083
+          predicates:
+            - Path=/api/strategies/**,/api/custom-strategies/**,/api/logs/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: strategyCircuitBreaker
+                fallbackUri: forward:/fallback/strategy
+
+        - id: futures-api
+          uri: http://futures-api:8084
+          predicates:
+            - Path=/api/futures/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: futuresCircuitBreaker
+                fallbackUri: forward:/fallback/futures
+
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty.http.client: DEBUG
+
 management:
   prometheus:
     metrics:
@@ -12,34 +87,27 @@ management:
       prometheus:
         enabled: true
 
-server:
-  port: 8080
-
-spring:
-  application:
-    name: api-gateway
-  cloud:
-    gateway:
-      actuator:
-        enabled: true
-      default-filters:
-        - AddResponseHeader=X-GATEWAY, crypto-bot-gateway
-      httpclient:
-        connect-timeout: 5000
-        response-timeout: 10s
-
-  main:
-    web-application-type: reactive
-
-logging:
-  level:
-    root: INFO
-    org.springframework.cloud.gateway: DEBUG
-    reactor.netty.http.client: DEBUG
-
-
 jwt:
   secret: M4rrE9sfhX9bPqLmX8vA2sW7kLpN3dQzCvKbMvUtXzWsUrYpPtHsVkTsGcXqFrZuF
 
-
-
+resilience4j:
+  circuitbreaker:
+    instances:
+      authCircuitBreaker:
+        registerHealthIndicator: true
+        slidingWindowSize: 5
+        minimumNumberOfCalls: 3
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+      spotCircuitBreaker:
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+      strategyCircuitBreaker:
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+      futuresCircuitBreaker:
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
