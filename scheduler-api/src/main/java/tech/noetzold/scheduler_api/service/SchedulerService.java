@@ -1,6 +1,7 @@
 package tech.noetzold.scheduler_api.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
@@ -14,12 +15,14 @@ public class SchedulerService {
     @Autowired
     private TaskScheduler scheduler;
 
+    @Value("${strategy-api.url}")
+    private String strategyApiUrl;
+
     public void schedule(StrategySchedule schedule) {
         CronTrigger trigger = new CronTrigger(schedule.getCronExpression());
         scheduler.schedule(() -> {
             try {
-                // Chamada à strategy-api
-                WebClient.create("http://strategy-api:8083")
+                WebClient.create(strategyApiUrl)
                         .post()
                         .uri("/api/strategies/execute/" + schedule.getStrategyName())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + schedule.getJwtToken())
@@ -27,9 +30,9 @@ public class SchedulerService {
                         .toBodilessEntity()
                         .block();
             } catch (Exception e) {
-                // logar erro
+                // TODO: log error properly
+                System.err.println("Error executing strategy: " + e.getMessage());
             }
         }, trigger);
     }
 }
-
