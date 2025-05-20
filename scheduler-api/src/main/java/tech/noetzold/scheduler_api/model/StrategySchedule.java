@@ -13,7 +13,7 @@ public class StrategySchedule {
     private Long id;
     private Long userId;
     private String strategyName;
-    private String cronExpression; // ex: "0 0/15 * * * *" para cada 15 minutos
-    private String jwtToken; // opcional
+    private String cronExpression;
+    private String jwtToken;
 }
 
