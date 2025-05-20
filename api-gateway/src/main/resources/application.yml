@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: api-gateway
+  profiles:
+    active: dev
 
   main:
     web-application-type: reactive
@@ -92,6 +94,15 @@ management:
 
 jwt:
   secret: M4rrE9sfhX9bPqLmX8vA2sW7kLpN3dQzCvKbMvUtXzWsUrYpPtHsVkTsGcXqFrZuF
+
+gateway:
+  routes:
+    auth: http://localhost:8081
+    spot: http://localhost:8082
+    strategy: http://localhost:8083
+    futures: http://localhost:8084
+    scheduler: http://localhost:8086
+
 
 resilience4j:
   circuitbreaker:
