@@ -1,0 +1,2 @@
+strategy-api:
+  url: http://strategy-api:8083
