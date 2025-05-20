@@ -1,0 +1,36 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: scheduler-api
+  main:
+    allow-bean-definition-overriding: true
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web.reactive.function.client: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Optional: Custom timeout config (used if you create a WebClient with builder)
+webclient:
+  timeout:
+    connect: 5000
+    read: 5000
