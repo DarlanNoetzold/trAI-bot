@@ -1,0 +1,8 @@
+
+gateway:
+  routes:
+    auth: http://auth-api:8081
+    spot: http://spot-api:8082
+    strategy: http://strategy-api:8083
+    futures: http://futures-api:8084
+    scheduler: http://scheduler-api:8086
