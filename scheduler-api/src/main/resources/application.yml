@@ -1,6 +1,9 @@
 server:
   port: 8086
 
+strategy-api:
+  url: http://localhost:8083
+
 spring:
   application:
     name: scheduler-api
@@ -29,7 +32,6 @@ management:
       prometheus:
         enabled: true
 
-# Optional: Custom timeout config (used if you create a WebClient with builder)
 webclient:
   timeout:
     connect: 5000
