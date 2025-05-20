@@ -23,6 +23,8 @@ public class ApiGatewayApplication {
 						.uri("http://strategy-api:8083"))
 				.route("futures-api", r -> r.path("/api/futures/**")
 						.uri("http://futures-api:8084"))
+				.route("scheduler-api", r -> r.path("/api/scheduler/**")
+						.uri("http://scheduler-api:8086"))
 				.build();
 	}
 }
