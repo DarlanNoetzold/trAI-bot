@@ -1,8 +1,10 @@
 spring:
+  profiles:
+    active: dev
   application:
     name: auth-api
   datasource:
-    url: jdbc:postgresql://custom-postgres:5432/cryptobot_test
+    url: jdbc:postgresql://localhost:5432/cryptobot_test
     username: postgres
     password: postgres
   jpa:
