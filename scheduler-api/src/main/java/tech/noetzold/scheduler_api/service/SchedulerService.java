@@ -1,5 +1,6 @@
 package tech.noetzold.scheduler_api.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -10,6 +11,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import tech.noetzold.scheduler_api.model.StrategySchedule;
 
 @Component
+@Slf4j
 public class SchedulerService {
 
     @Autowired
@@ -30,8 +32,7 @@ public class SchedulerService {
                         .toBodilessEntity()
                         .block();
             } catch (Exception e) {
-                // TODO: log error properly
-                System.err.println("Error executing strategy: " + e.getMessage());
+                log.error("Error executing strategy: " + e.getMessage());
             }
         }, trigger);
     }
