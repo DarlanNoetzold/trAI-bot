@@ -1,21 +1,9 @@
 server:
   port: 8086
 
-strategy-api:
-  url: http://localhost:8083
-
-spring:
-  application:
-    name: scheduler-api
-  main:
-    allow-bean-definition-overriding: true
-
-logging:
-  level:
-    root: INFO
-    org.springframework.web.reactive.function.client: DEBUG
-
 management:
+  profiles:
+    active: dev
   endpoints:
     web:
       exposure:
@@ -36,3 +24,19 @@ webclient:
   timeout:
     connect: 5000
     read: 5000
+
+
+strategy-api:
+  url: http://localhost:8083
+
+spring:
+  application:
+    name: scheduler-api
+  main:
+    allow-bean-definition-overriding: true
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web.reactive.function.client: DEBUG
+
