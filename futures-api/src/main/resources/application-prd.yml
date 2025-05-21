@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://custom-postgres:5432/cryptobot_test
+    username: postgres
+    password: postgres
