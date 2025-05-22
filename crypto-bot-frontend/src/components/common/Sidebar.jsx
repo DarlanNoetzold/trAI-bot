@@ -8,7 +8,8 @@ import {
   User,
   ChevronDown,
   RefreshCcw,
-  LogOut
+  LogOut,
+  Clock
 } from 'lucide-react';
 import styled from 'styled-components';
 import { useAuth } from '../../contexts/AuthContext';
@@ -229,6 +230,11 @@ const Sidebar = () => {
     <NavLink to="/strategies/create" className={({ isActive }) => (isActive ? 'active' : '')}>
       <Layers size={20} />
       <span>Create Strategy</span>
+    </NavLink>
+
+    <NavLink to="/scheduler" className={({ isActive }) => (isActive ? 'active' : '')}>
+      <Clock size={20} />
+      <span>Scheduler</span>
     </NavLink>
 
     <NavLink to="/account" className={({ isActive }) => (isActive ? 'active' : '')}>
