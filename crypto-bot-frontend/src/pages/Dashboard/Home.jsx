@@ -167,6 +167,11 @@ export default function HomePage() {
       title: "Bot Management",
       description: "Run and monitor automated bots with custom strategies.",
       link: "/strategies",
+    },user && {
+      icon: <LayoutDashboard size={32} />,
+      title: "Scheduler",
+      description: "Automate strategy execution with custom schedules.",
+      link: "/scheduler",
     },
     user && {
       icon: <User size={32} />,
