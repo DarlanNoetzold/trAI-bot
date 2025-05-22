@@ -6,6 +6,7 @@ import StandardOrders from '../pages/Orders/StandardOrders';
 import OcoOrders from '../pages/Orders/OcoOrders';
 import StrategyManager from '../pages/Strategies/StrategyManager';
 import StrategyRunner from '../pages/Strategies/StrategyRunner';
+import SchedulerPage from '../pages/Strategies/SchedulerPage';
 import AccountInfo from '../pages/Account/AccountInfo';
 import Home from '../pages/Dashboard/Home';
 import AuthPage from '../pages/Auth/AuthPage';
@@ -73,6 +74,7 @@ const AppRouter = () => {
           </PrivateRoute>
         }
       />
+      <Route path="/scheduler" element={<SchedulerPage />} />
       <Route
         path="/account"
         element={
