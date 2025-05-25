@@ -34,6 +34,10 @@ spring:
     name: scheduler-api
   main:
     allow-bean-definition-overriding: true
+  datasource:
+    url: jdbc:postgresql://localhost:5432/cryptobot_test
+    username: postgres
+    password: postgres
 
 logging:
   level:
