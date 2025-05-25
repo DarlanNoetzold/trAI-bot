@@ -1,2 +1,12 @@
 strategy-api:
   url: http://strategy-api:8083
+
+spring:
+  application:
+    name: scheduler-api
+  main:
+    allow-bean-definition-overriding: true
+  datasource:
+    url: jdbc:postgresql://custom-postgres:5432/cryptobot_test
+    username: postgres
+    password: postgres
