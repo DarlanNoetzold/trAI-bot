@@ -6,7 +6,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tech.noetzold.spot_api.dto.OrderOcoRequestDTO;
 import tech.noetzold.spot_api.dto.OrderRequestDTO;
+import tech.noetzold.spot_api.service.AuditService;
 import tech.noetzold.spot_api.service.BinanceOrderService;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/trade")
@@ -15,18 +18,39 @@ import tech.noetzold.spot_api.service.BinanceOrderService;
 public class TradeController {
 
     private final BinanceOrderService orderService;
+    private final AuditService auditService;
+
 
     @PostMapping("/order")
-    public ResponseEntity<?> placeOrder(@RequestBody OrderRequestDTO dto) {
+    public ResponseEntity<?> placeOrder(@RequestBody OrderRequestDTO dto, @RequestHeader Map<String, String> headers) {
         log.info("POST /api/trade/order called with symbol={}, side={}, type={}, quantity={}, price={}",
                 dto.getSymbol(), dto.getSide(), dto.getType(), dto.getQuantity(), dto.getPrice());
+
+        auditService.log(
+                getUserId(headers),
+                headers.get("x-email"),
+                "ORDER_CREATE",
+                dto.getSymbol(),
+                String.format("Placed order: %s %s %.2f", dto.getSide(), dto.getType(), dto.getQuantity())
+        );
+
         return ResponseEntity.ok(orderService.placeOrder(dto));
     }
 
     @PostMapping("/order/oco")
-    public ResponseEntity<?> placeOcoOrder(@RequestBody OrderOcoRequestDTO dto) {
+    public ResponseEntity<?> placeOcoOrder(@RequestBody OrderOcoRequestDTO dto, @RequestHeader Map<String, String> headers) {
         log.info("POST /api/trade/order/oco called with symbol={}, quantity={}, price={}, stopPrice={}, stopLimitPrice={}",
                 dto.getSymbol(), dto.getQuantity(), dto.getPrice(), dto.getStopPrice(), dto.getStopLimitPrice());
+
+        auditService.log(
+                getUserId(headers),
+                headers.get("x-email"),
+                "ORDER_CREATE",
+                dto.getSymbol(),
+                String.format("Placed order: %s %s %.2f", dto.getSide(), "oco", dto.getQuantity())
+        );
+
+
         return ResponseEntity.ok(orderService.placeOcoOrder(dto));
     }
 
@@ -67,5 +91,13 @@ public class TradeController {
         log.info("GET /api/trade/orders/all called with symbol={}, startTime={}, endTime={}",
                 symbol, startTime, endTime);
         return ResponseEntity.ok(orderService.getAllOrders(symbol, startTime, endTime));
+    }
+
+    private Long getUserId(Map<String, String> headers) {
+        try {
+            return Long.parseLong(headers.getOrDefault("x-user-id", "0"));
+        } catch (Exception e) {
+            return 0L;
+        }
     }
 }
