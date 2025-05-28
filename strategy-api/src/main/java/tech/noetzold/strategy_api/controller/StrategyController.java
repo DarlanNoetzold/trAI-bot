@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tech.noetzold.strategy_api.model.User;
 import tech.noetzold.strategy_api.repository.UserRepository;
+import tech.noetzold.strategy_api.service.AuditService;
 import tech.noetzold.strategy_api.service.StrategyRunnerService;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class StrategyController {
 
     private final StrategyRunnerService strategyRunnerService;
     private final UserRepository userRepository;
+    private final AuditService auditService;
 
     private User extractUserFromHeaders(Map<String, String> headers) {
         String email = headers.get("x-email");
@@ -44,6 +46,7 @@ public class StrategyController {
     ) {
         User user = extractUserFromHeaders(headers);
         log.info("POST /api/strategies/run/{} called by user={} with params={}", strategyName, user.getEmail(), params);
+        auditService.log(user.getId(), user.getEmail(), "RUN", "STRATEGY", "Started strategy asynchronously: " + strategyName);
         String result = strategyRunnerService.runStrategyAsync(strategyName, params, user);
         return ResponseEntity.ok(result);
     }
@@ -56,13 +59,16 @@ public class StrategyController {
     ) {
         User user = extractUserFromHeaders(headers);
         log.info("POST /api/strategies/run-once/{} called by user={} with params={}", strategyName, user.getEmail(), params);
+        auditService.log(user.getId(), user.getEmail(), "RUN_ONCE", "STRATEGY", "Executed strategy once: " + strategyName);
         String result = strategyRunnerService.runStrategy(strategyName, params, user);
         return ResponseEntity.ok(result);
     }
 
     @PostMapping("/stop/{strategyName}")
-    public ResponseEntity<String> stopStrategy(@PathVariable String strategyName) {
-        log.info("POST /api/strategies/stop/{} called", strategyName);
+    public ResponseEntity<String> stopStrategy(@PathVariable String strategyName, @RequestHeader Map<String, String> headers) {
+        User user = extractUserFromHeaders(headers);
+        log.info("POST /api/strategies/stop/{} called by user={}", strategyName, user.getEmail());
+        auditService.log(user.getId(), user.getEmail(), "STOP", "STRATEGY", "Stopped strategy: " + strategyName);
         String result = strategyRunnerService.stopStrategy(strategyName);
         return ResponseEntity.ok(result);
     }
