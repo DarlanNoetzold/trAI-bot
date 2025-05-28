@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import tech.noetzold.strategy_api.dto.CustomStrategyDTO;
 import tech.noetzold.strategy_api.model.CustomStrategy;
 import tech.noetzold.strategy_api.repository.CustomStrategyRepository;
+import tech.noetzold.strategy_api.service.AuditService;
 
+import java.time.Instant;
 import java.util.List;
 
 @RestController
@@ -17,6 +19,7 @@ import java.util.List;
 public class CustomStrategyController {
 
     private final CustomStrategyRepository repository;
+    private final AuditService auditService;
 
     @PostMapping
     public ResponseEntity<?> createStrategy(@RequestBody CustomStrategyDTO dto) {
@@ -25,6 +28,14 @@ public class CustomStrategyController {
 
         CustomStrategy strategy = convertDtoToEntity(dto);
         repository.save(strategy);
+
+        auditService.log(
+                0L,
+                dto.getUserId() != null ? dto.getUserId() : "unknown",
+                "CREATE",
+                "CUSTOM_STRATEGY",
+                "Created custom strategy: " + dto.getName()
+        );
 
         log.info("Custom strategy created: {}", strategy.getName());
         return ResponseEntity.ok("Criada com sucesso");
