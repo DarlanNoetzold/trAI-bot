@@ -2,8 +2,8 @@ package tech.noetzold.notification_api.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import tech.noetzold.auth_api.model.AuditLog;
-import tech.noetzold.auth_api.repository.AuditLogRepository;
+import tech.noetzold.notification_api.model.AuditLog;
+import tech.noetzold.notification_api.repository.AuditLogRepository;
 
 import java.time.Instant;
 
