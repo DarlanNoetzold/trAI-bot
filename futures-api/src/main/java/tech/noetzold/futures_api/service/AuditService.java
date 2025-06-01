@@ -3,8 +3,7 @@ package tech.noetzold.futures_api.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tech.noetzold.futures_api.model.AuditLog;
-import tech.noetzold.strategy_api.model.AuditLog;
-import tech.noetzold.strategy_api.repository.AuditLogRepository;
+import tech.noetzold.futures_api.repository.AuditLogRepository;
 
 import java.time.Instant;
 
