@@ -129,19 +129,19 @@ docker build --build-arg REACT_APP_API_URL=http://<external-ip>:8080/api -t trai
 # ✅ To-Do List - Oraculum Micro-SaaS
 
 ## 🧠 Functional & Back-End
-- [ ] Create `user-profile-api` to manage user preferences and Binance keys
-- [ ] Store strategy execution logs in PostgreSQL
-- [ ] Generate performance reports for strategies (success rate, profit, drawdown)
-- [ ] Implement a `scheduler-api` to trigger strategies automatically
-- [ ] Add user roles and permissions (`ADMIN`, `TRADER`, `VIEWER`)
-- [ ] Implement action auditing (login, trade, strategy execution)
-- [ ] Create centralized config service (`config-api` or Spring Cloud Config)
-- [ ] Add rate limiting, retry and circuit breaker to `api-gateway` (Resilience4j)
+- [x] Create `user-profile-api` to manage user preferences and Binance keys
+- [x] Store strategy execution logs in PostgreSQL
+- [x] Generate performance reports for strategies (success rate, profit, drawdown)
+- [x] Implement a `scheduler-api` to trigger strategies automatically
+- [x] Add user roles and permissions (`ADMIN`, `TRADER`, `VIEWER`)
+- [x] Implement action auditing (login, trade, strategy execution)
+- [x] Create centralized config service (`config-api` or Spring Cloud Config)
+- [x] Add rate limiting, retry and circuit breaker to `api-gateway` (Resilience4j)
 
 ## 🛡 Security
-- [ ] Add JWT expiration and refresh token mechanism
-- [ ] Restrict API access based on user roles
-- [ ] Log all security-related events (auth failures, suspicious patterns)
+- [x] Add JWT expiration and refresh token mechanism
+- [x] Restrict API access based on user roles
+- [x] Log all security-related events (auth failures, suspicious patterns)
 
 ## 📊 Monitoring & Observability
 - [ ] Add custom Prometheus metrics for each service
