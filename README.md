@@ -1,6 +1,6 @@
-# Oraculum Platform - Crypto Bot (Micro-SaaS)
+# trAI Bot - Crypto Bot
 
-Oraculum is a Micro-SaaS platform composed of several Spring Boot APIs and a React-based frontend. Its goal is to provide a complete environment for crypto trading strategies integrated with Binance APIs (Spot and Futures), including notifiers and a control dashboard.
+trAI is a Micro-SaaS platform designed to manage, execute, and monitor automated cryptocurrency trading strategies. It offers integration with Binance (Spot and Futures), supports custom strategy creation, real-time execution tracking, and includes a notification system and control dashboard for full operational oversight.
 
 ## 🌍 Architecture Overview
 
