@@ -126,7 +126,8 @@ For the React frontend, make sure to set `REACT_APP_API_URL` correctly at build 
 docker build --build-arg REACT_APP_API_URL=http://<external-ip>:8080/api -t trai-frontend .
 ```
 
+---
 
 ⭐️ From [DarlanNoetzold](https://github.com/DarlanNoetzold)
----
+
 
