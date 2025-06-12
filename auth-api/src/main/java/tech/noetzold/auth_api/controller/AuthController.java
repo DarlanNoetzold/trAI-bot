@@ -23,10 +23,21 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody UserRegisterDTO dto) {
         log.info("POST /api/auth/register called with email={}, username={}", dto.getEmail(), dto.getUsername());
 
-        authService.register(dto);
-        auditService.log(null, dto.getEmail(), "REGISTER", "AUTH", "User registered with email: " + dto.getEmail());
+        if (dto.getRole() == null || dto.getRole().isBlank()) {
+            return ResponseEntity.badRequest().body("Role is required (ADMIN, TRADER or VIEWER)");
+        }
 
-        return ResponseEntity.ok("Usuário registrado com sucesso");
+        authService.register(dto);
+
+        auditService.log(
+                null,
+                dto.getEmail(),
+                "REGISTER",
+                "AUTH",
+                "User registered with role: " + dto.getRole().toUpperCase()
+        );
+
+        return ResponseEntity.ok("User successfully registered");
     }
 
     @PostMapping("/login")
