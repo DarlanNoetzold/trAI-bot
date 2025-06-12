@@ -12,6 +12,8 @@ import tech.noetzold.auth_api.model.User;
 import tech.noetzold.auth_api.repository.UserRepository;
 import tech.noetzold.auth_api.util.JwtUtil;
 
+import java.util.Set;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -25,6 +27,10 @@ public class AuthService {
             throw new RuntimeException("Email já cadastrado");
         }
 
+        if (dto.getRole() == null || dto.getRole().isBlank()) {
+            throw new IllegalArgumentException("Role is required (ADMIN, TRADER or VIEWER)");
+        }
+
         User user = new User();
         user.setUsername(dto.getUsername());
         user.setEmail(dto.getEmail());
@@ -36,8 +42,11 @@ public class AuthService {
         user.setProductionApiKey(dto.getProductionApiKey());
         user.setProductionSecretKey(dto.getProductionSecretKey());
 
+        user.setRoles(Set.of(dto.getRole().toUpperCase()));
+
         userRepository.save(user);
     }
+
 
     public AuthResponseDTO login(UserLoginDTO dto) {
         User user = userRepository.findByEmail(dto.getEmail())
