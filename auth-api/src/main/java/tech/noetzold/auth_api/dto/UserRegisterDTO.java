@@ -18,5 +18,7 @@ public class UserRegisterDTO {
     private String whatsappNumber;
     private String telegramChatId;
     private String whatsappApiKey;
+    private String role; // Pode ser "ADMIN", "TRADER" ou "VIEWER"
+
 }
 
