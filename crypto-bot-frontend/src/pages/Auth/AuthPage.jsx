@@ -98,7 +98,9 @@ export default function AuthPage({ onClose = () => {} }) {
     whatsappNumber: "",
     telegramChatId: "",
     whatsappApiKey: "",
+    role: "", // <- adicionado aqui
   });
+  
 
   const handleLogin = async () => {
     const res = await fetch("http://127.0.0.1:8080/api/auth/login", {
@@ -135,6 +137,7 @@ export default function AuthPage({ onClose = () => {} }) {
         <h2>{isLogin ? "Login" : "Register"}</h2>
         <ToggleButtons>
           <button onClick={() => setIsLogin(true)}>Login</button>
+          
           <button onClick={() => setIsLogin(false)}>Register</button>
         </ToggleButtons>
 
@@ -216,6 +219,41 @@ export default function AuthPage({ onClose = () => {} }) {
               value={registerForm.whatsappApiKey}
               onChange={(e) => setRegisterForm({ ...registerForm, whatsappApiKey: e.target.value })}
             />
+            <div style={{ marginBottom: "1rem", textAlign: "center" }}>
+              <label style={{ display: "block", marginBottom: "0.5rem", color: "#7fbb5e" }}>
+                Choose Your Plan:
+              </label>
+              <div style={{ display: "flex", justifyContent: "center", gap: "1rem", flexWrap: "wrap" }}>
+                {[
+                  { label: "Basic", role: "VIEWER", price: "Free" },
+                  { label: "Strategist", role: "TRADER", price: "$9.99/month" },
+                  { label: "Futurist", role: "ADMIN", price: "$19.99/month" }
+                ].map((plan) => (
+                  <button
+                    key={plan.role}
+                    onClick={() => setRegisterForm({ ...registerForm, role: plan.role })}
+                    style={{
+                      padding: "0.6rem 1rem",
+                      borderRadius: "6px",
+                      background: registerForm.role === plan.role ? "#7fbb5e" : "transparent",
+                      border: "1px solid #4d6b3c",
+                      color: registerForm.role === plan.role ? "#121b12" : "#7fbb5e",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      minWidth: "180px"
+                    }}
+                  >
+                    <div>
+                      {plan.label} ({plan.role})
+                    </div>
+                    <div style={{ fontSize: "0.8rem", color: "#a0bfa2" }}>{plan.price}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+
             <button onClick={handleRegister}>Register</button>
           </>
         )}
