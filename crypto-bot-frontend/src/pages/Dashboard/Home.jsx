@@ -9,6 +9,10 @@ import {
   Lock,
   LogIn,
   LogOut,
+  TrendingUp,
+  Clock,
+  Briefcase,
+  Rocket,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -41,11 +45,67 @@ const Wrapper = styled.div`
     color: #a8bfa2;
   }
 
+  .plans {
+    margin-top: 4rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .plan {
+      background: #1a1f1a;
+      border: 1px solid #4d6b3c88;
+      border-radius: 1rem;
+      padding: 2rem;
+      text-align: center;
+      box-shadow: 0 0 20px #00000050;
+
+      h3 {
+        color: #7fbb5e;
+        margin-bottom: 1rem;
+      }
+
+      .price {
+        font-size: 1.5rem;
+        color: #9ad187;
+        margin-bottom: 1rem;
+      }
+
+      ul {
+        list-style: none;
+        padding: 0;
+        color: #b0c2b0;
+        font-size: 0.9rem;
+
+        li {
+          margin: 0.5rem 0;
+        }
+      }
+
+      .select-btn {
+        margin-top: 1.5rem;
+        background-color: #7fbb5e;
+        color: #121b12;
+        padding: 0.5rem 1rem;
+        font-weight: bold;
+        border: none;
+        border-radius: 0.5rem;
+        cursor: pointer;
+
+        &:hover {
+          background-color: #9ad187;
+        }
+      }
+    }
+  }
+
   .features {
     margin-top: 4rem;
     display: grid;
     grid-template-columns: 1fr;
-
     gap: 2rem;
 
     @media (min-width: 640px) {
@@ -135,48 +195,49 @@ export default function HomePage() {
     !user && {
       icon: <LogIn size={32} />,
       title: "Login",
-      description: "Log in with your email and password to access the system.",
+      description: "Log in to access your account and strategies dashboard.",
       action: () => setShowModal(true),
     },
     !user && {
       icon: <Lock size={32} />,
       title: "Register",
-      description: "Create your account by providing email, password, and Binance keys.",
+      description: "Create your account and integrate your Binance API keys.",
       action: () => setShowModal(true),
     },
     user && {
       icon: <BarChart size={32} />,
-      title: "Real-Time Market",
-      description: "View prices, candles, and orders with dynamic charts.",
+      title: "Market Overview",
+      description: "Explore real-time market prices and charts.",
       link: "/market",
     },
     user && {
       icon: <ShoppingCart size={32} />,
       title: "Standard Orders",
-      description: "Place simple orders with instant fill and execution history.",
+      description: "Execute buy/sell market or limit orders.",
       link: "/orders/standard",
     },
     user && {
       icon: <ShoppingCart size={32} />,
       title: "OCO Orders",
-      description: "Place OCO orders with automatic stop-loss and take-profit.",
+      description: "Place OCO orders with stop-loss and take-profit.",
       link: "/orders/oco",
     },
     user && {
       icon: <LayoutDashboard size={32} />,
       title: "Bot Management",
-      description: "Run and monitor automated bots with custom strategies.",
+      description: "Automate your strategies using real trading rules.",
       link: "/strategies",
-    },user && {
-      icon: <LayoutDashboard size={32} />,
+    },
+    user && {
+      icon: <Clock size={32} />,
       title: "Scheduler",
-      description: "Automate strategy execution with custom schedules.",
+      description: "Schedule your strategy executions.",
       link: "/scheduler",
     },
     user && {
       icon: <User size={32} />,
       title: "Dashboard",
-      description: "Track your portfolio, balance, and strategies in real time.",
+      description: "Monitor performance, orders and profits.",
       link: "/account",
     },
   ].filter(Boolean);
@@ -198,9 +259,41 @@ export default function HomePage() {
         transition={{ delay: 0.6, duration: 0.8 }}
         className="subheading"
       >
-        Full control of your automated strategies with insights, order execution,
-        and real-time charts.
+        Automate your trading strategies with real-time execution, intelligent bots, and powerful analytics.
       </motion.p>
+
+      {!user && (
+        <div className="plans">
+          <div className="plan">
+            <h3>Basic Plan</h3>
+            <div className="price">Free</div>
+            <ul>
+              <li><BarChart size={16} style={{ marginRight: 6 }} /> Access to real-time market data</li>
+              <li><User size={16} style={{ marginRight: 6 }} /> Dashboard overview</li>
+            </ul>
+            <button className="select-btn" onClick={() => setShowModal(true)}>Get Started</button>
+          </div>
+          <div className="plan">
+            <h3>Strategist Plan</h3>
+            <div className="price">$9.99 / month</div>
+            <ul>
+              <li><LayoutDashboard size={16} style={{ marginRight: 6 }} /> Access to bot manager</li>
+              <li><Clock size={16} style={{ marginRight: 6 }} /> Strategy scheduler</li>
+              <li>All Basic Plan features</li>
+            </ul>
+            <button className="select-btn" onClick={() => setShowModal(true)}>Choose Plan</button>
+          </div>
+          <div className="plan">
+            <h3>Futurist Plan</h3>
+            <div className="price">$19.99 / month</div>
+            <ul>
+              <li><Rocket size={16} style={{ marginRight: 6 }} /> Access to Binance Futures</li>
+              <li>All Strategist Plan features</li>
+            </ul>
+            <button className="select-btn" onClick={() => setShowModal(true)}>Go Premium</button>
+          </div>
+        </div>
+      )}
 
       {user && (
         <div className="auth-header">
