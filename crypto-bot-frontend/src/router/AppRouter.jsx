@@ -11,7 +11,6 @@ import AccountInfo from '../pages/Account/AccountInfo';
 import Home from '../pages/Dashboard/Home';
 import AuthPage from '../pages/Auth/AuthPage';
 import CreateCustomStrategy from '../pages/Strategies/CreateCustomStrategy';
-import LandingPage from '../pages/Landing/LandingPage';
 
 
 import { useAuth } from '../contexts/AuthContext';
@@ -26,7 +25,6 @@ const AppRouter = () => {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/auth" element={<AuthPage />} />
-      <Route path="/landing" element={<LandingPage />} />
       <Route
         path="/market"
         element={
