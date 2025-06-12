@@ -191,56 +191,80 @@ export default function HomePage() {
   const { user, logout } = useAuth();
   const [showModal, setShowModal] = useState(false);
 
-  const features = [
-    !user && {
-      icon: <LogIn size={32} />,
-      title: "Login",
-      description: "Log in to access your account and strategies dashboard.",
-      action: () => setShowModal(true),
-    },
-    !user && {
-      icon: <Lock size={32} />,
-      title: "Register",
-      description: "Create your account and integrate your Binance API keys.",
-      action: () => setShowModal(true),
-    },
-    user && {
-      icon: <BarChart size={32} />,
-      title: "Market Overview",
-      description: "Explore real-time market prices and charts.",
-      link: "/market",
-    },
-    user && {
-      icon: <ShoppingCart size={32} />,
-      title: "Standard Orders",
-      description: "Execute buy/sell market or limit orders.",
-      link: "/orders/standard",
-    },
-    user && {
-      icon: <ShoppingCart size={32} />,
-      title: "OCO Orders",
-      description: "Place OCO orders with stop-loss and take-profit.",
-      link: "/orders/oco",
-    },
-    user && {
-      icon: <LayoutDashboard size={32} />,
-      title: "Bot Management",
-      description: "Automate your strategies using real trading rules.",
-      link: "/strategies",
-    },
-    user && {
-      icon: <Clock size={32} />,
-      title: "Scheduler",
-      description: "Schedule your strategy executions.",
-      link: "/scheduler",
-    },
-    user && {
-      icon: <User size={32} />,
-      title: "Dashboard",
-      description: "Monitor performance, orders and profits.",
-      link: "/account",
-    },
-  ].filter(Boolean);
+  const getFeaturesByRole = (role) => {
+    const common = [
+      {
+        icon: <BarChart size={32} />,
+        title: "Market Overview",
+        description: "Explore real-time market prices and charts.",
+        link: "/market",
+      },
+      {
+        icon: <User size={32} />,
+        title: "Dashboard",
+        description: "Monitor performance, orders and profits.",
+        link: "/account",
+      }
+    ];
+  
+    const trader = [
+      {
+        icon: <ShoppingCart size={32} />,
+        title: "Standard Orders",
+        description: "Execute buy/sell market or limit orders.",
+        link: "/orders/standard",
+      },
+      {
+        icon: <ShoppingCart size={32} />,
+        title: "OCO Orders",
+        description: "Place OCO orders with stop-loss and take-profit.",
+        link: "/orders/oco",
+      },
+      {
+        icon: <LayoutDashboard size={32} />,
+        title: "Bot Management",
+        description: "Automate your strategies using real trading rules.",
+        link: "/strategies",
+      },
+      {
+        icon: <Clock size={32} />,
+        title: "Scheduler",
+        description: "Schedule your strategy executions.",
+        link: "/scheduler",
+      }
+    ];
+  
+    const admin = [
+      {
+        icon: <Rocket size={32} />,
+        title: "Binance Futures",
+        description: "Access the futures trading features.",
+        link: "/futures",
+      }
+    ];
+  
+    if (role === "ADMIN") return [...common, ...trader, ...admin];
+    if (role === "TRADER") return [...common, ...trader];
+    return common; // VIEWER or fallback
+  };
+  
+  const features = !user
+    ? [
+        {
+          icon: <LogIn size={32} />,
+          title: "Login",
+          description: "Log in to access your account and strategies dashboard.",
+          action: () => setShowModal(true),
+        },
+        {
+          icon: <Lock size={32} />,
+          title: "Register",
+          description: "Create your account and integrate your Binance API keys.",
+          action: () => setShowModal(true),
+        }
+      ]
+    : getFeaturesByRole(user.role);
+  
 
   return (
     <Wrapper>
