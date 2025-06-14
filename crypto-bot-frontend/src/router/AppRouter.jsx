@@ -11,6 +11,8 @@ import AccountInfo from '../pages/Account/AccountInfo';
 import Home from '../pages/Dashboard/Home';
 import AuthPage from '../pages/Auth/AuthPage';
 import CreateCustomStrategy from '../pages/Strategies/CreateCustomStrategy';
+import SuccessPage from "../pages/Auth/SuccessPage";
+import CancelPage from "../pages/Auth/CancelPage";
 
 
 import { useAuth } from '../contexts/AuthContext';
@@ -25,6 +27,8 @@ const AppRouter = () => {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/auth" element={<AuthPage />} />
+      <Route path="/payment/success" element={<SuccessPage />} />
+      <Route path="/payment/cancel" element={<CancelPage />} />
       <Route
         path="/market"
         element={
