@@ -72,6 +72,16 @@ spring:
                 name: futuresCircuitBreaker
                 fallbackUri: forward:/fallback/futures
 
+        - id: payment-api
+          uri: http://payment-api:8087
+          predicates:
+            - Path=/api/payment/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: paymentCircuitBreaker
+                fallbackUri: forward:/fallback/payment
+
 logging:
   level:
     root: INFO
@@ -102,6 +112,8 @@ gateway:
     strategy: http://localhost:8083
     futures: http://localhost:8084
     scheduler: http://localhost:8086
+    payment: http://localhost:8087
+
 
 
 resilience4j:
@@ -125,3 +137,8 @@ resilience4j:
         slidingWindowSize: 5
         failureRateThreshold: 50
         waitDurationInOpenState: 10s
+      paymentCircuitBreaker:
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+
