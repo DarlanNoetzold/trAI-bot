@@ -118,17 +118,27 @@ export default function AuthPage({ onClose = () => {} }) {
   };
 
   const handleRegister = async () => {
-    const res = await fetch("http://127.0.0.1:8080/api/auth/register", {
+    const paymentRes = await fetch("http://127.0.0.1:8080/api/payment/create-checkout-session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(registerForm),
+      body: JSON.stringify({
+        amount: registerForm.role === "TRADER" ? 999 : registerForm.role === "ADMIN" ? 1999 : 0,
+        planName: registerForm.role,
+        successUrl: "http://localhost:3000/payment/success",
+        cancelUrl: "http://localhost:3000/payment/cancel"
+      }),
     });
-    if (res.ok) {
-      alert("Registration successful");
-      setIsLogin(true);
-    } else {
-      alert("Registration failed");
+  
+    if (!paymentRes.ok) {
+      alert("Erro ao iniciar pagamento");
+      return;
     }
+  
+    const { checkoutUrl } = await paymentRes.json();
+  
+    localStorage.setItem("pendingUserRegister", JSON.stringify(registerForm));
+  
+    window.location.href = checkoutUrl;
   };
 
   return (
