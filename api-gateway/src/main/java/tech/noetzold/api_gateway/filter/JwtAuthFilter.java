@@ -27,9 +27,10 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getPath().toString();
 
-        if (path.startsWith("/api/auth") || path.startsWith("/actuator")) {
+        if (path.startsWith("/api/auth") || path.startsWith("/api/payment") || path.startsWith("/actuator")) {
             return chain.filter(exchange);
         }
+
 
         List<String> authHeaders = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION);
 
