@@ -1,2 +1,5 @@
 stripe:
-  secret-key: sk_test_xxxxxxxxxxxxxxxxxxxxx
+  pub-key: pk_test_51RZu1yRkF2ZK3sDllFjBhRfOTUeJrDrAHJdYcz7x4wkK9fsELY4xs8oD4G0ui3LFM5D6Uk1S4x6gZFPs5Q9zMGN900uxBcqsVt
+  secret-key: sk_test_51RZu1yRkF2ZK3sDlz9XVABI1jMjfXz6FgHggBPCMJYKyYV5B8NcgddEJujxIfFkG2H2XkEY9TgZXp1S1XUpvSBX700zIXawUpz
+server:
+  port: 8087
