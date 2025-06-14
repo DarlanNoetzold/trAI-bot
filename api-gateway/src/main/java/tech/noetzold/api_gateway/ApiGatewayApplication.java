@@ -25,6 +25,9 @@ public class ApiGatewayApplication {
 	@Value("${gateway.routes.scheduler}")
 	private String schedulerApi;
 
+	@Value("${gateway.routes.payment}")
+	private String paymentApi;
+
 	public static void main(String[] args) {
 		SpringApplication.run(ApiGatewayApplication.class, args);
 	}
@@ -37,6 +40,7 @@ public class ApiGatewayApplication {
 				.route("strategy-api", r -> r.path("/api/strategies/**", "/api/custom-strategies/**", "/api/logs/**").uri(strategyApi))
 				.route("futures-api", r -> r.path("/api/futures/**").uri(futuresApi))
 				.route("scheduler-api", r -> r.path("/api/scheduler/**").uri(schedulerApi))
+				.route("payment-api", r -> r.path("/api/payment/**").uri(paymentApi))
 				.build();
 	}
 }
