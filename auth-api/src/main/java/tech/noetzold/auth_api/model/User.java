@@ -21,6 +21,8 @@ public class User implements UserDetails {
 
     private String username; // pode ser o e-mail
     private String password;
+
+    @Column(unique = true, nullable = false)
     private String email;
     private String birthDate;
     private String address;
