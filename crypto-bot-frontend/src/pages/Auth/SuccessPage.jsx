@@ -57,7 +57,7 @@ export default function SuccessPage() {
           if (res.ok) {
             localStorage.removeItem("pendingUserRegister");
           } else {
-            alert("Registration failed after payment.");
+            console.log("Registration failed after payment.");
           }
         })
         .catch(() => alert("Error completing registration."));
