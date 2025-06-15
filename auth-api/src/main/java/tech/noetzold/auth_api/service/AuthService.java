@@ -1,9 +1,11 @@
 package tech.noetzold.auth_api.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import tech.noetzold.auth_api.dto.AuthResponseDTO;
 import tech.noetzold.auth_api.dto.UserLoginDTO;
 import tech.noetzold.auth_api.dto.UserRegisterDTO;
@@ -24,11 +26,11 @@ public class AuthService {
 
     public void register(UserRegisterDTO dto) {
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
-            throw new RuntimeException("Email já cadastrado");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
         }
 
         if (dto.getRole() == null || dto.getRole().isBlank()) {
-            throw new IllegalArgumentException("Role is required (ADMIN, TRADER or VIEWER)");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role is required (ADMIN, TRADER or VIEWER)");
         }
 
         User user = new User();
@@ -41,11 +43,11 @@ public class AuthService {
         user.setTestnetSecretKey(dto.getTestnetSecretKey());
         user.setProductionApiKey(dto.getProductionApiKey());
         user.setProductionSecretKey(dto.getProductionSecretKey());
-
         user.setRoles(Set.of(dto.getRole().toUpperCase()));
 
         userRepository.save(user);
     }
+
 
 
     public AuthResponseDTO login(UserLoginDTO dto) {
