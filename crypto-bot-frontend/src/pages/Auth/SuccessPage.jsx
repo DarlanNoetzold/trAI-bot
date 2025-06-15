@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 
@@ -43,6 +43,26 @@ const Button = styled.button`
 
 export default function SuccessPage() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const registerData = localStorage.getItem("pendingUserRegister");
+    if (registerData) {
+      const user = JSON.parse(registerData);
+      fetch("http://127.0.0.1:8080/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(user),
+      })
+        .then((res) => {
+          if (res.ok) {
+            localStorage.removeItem("pendingUserRegister");
+          } else {
+            alert("Registration failed after payment.");
+          }
+        })
+        .catch(() => alert("Error completing registration."));
+    }
+  }, []);
 
   return (
     <Wrapper>
