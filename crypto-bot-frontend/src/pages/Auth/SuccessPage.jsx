@@ -60,7 +60,7 @@ export default function SuccessPage() {
             console.log("Registration failed after payment.");
           }
         })
-        .catch(() => alert("Error completing registration."));
+        .catch(() => console.log("Error completing registration."));
     }
   }, []);
 
