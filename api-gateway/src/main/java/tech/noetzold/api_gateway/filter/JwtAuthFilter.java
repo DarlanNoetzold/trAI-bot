@@ -40,7 +40,6 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
         }
 
         String token = authHeaders.get(0).substring(7);
-
         try {
             Key key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
             Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
