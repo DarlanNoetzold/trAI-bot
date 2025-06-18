@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { getAccountInfo, getAccountTrades } from '../../services/accountService';
+import { getAccountInfo, getAccountTrades, getUserInfo, updateUserInfo } from '../../services/accountService';
 import Loader from '../../components/common/Loader';
 
 const Container = styled.div`
@@ -58,29 +58,117 @@ const SectionTitle = styled.h3`
   color: #b6efb6;
 `;
 
+const Button = styled.button`
+  background: #233423;
+  color: #b6efb6;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1.2rem;
+  margin-right: 1rem;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+`;
+
+function EditForm({ userData, setUserData, setIsEditing }) {
+  const [form, setForm] = useState({ ...userData });
+  const [saving, setSaving] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await updateUserInfo(form);
+      setUserData(form);
+      setIsEditing(false);
+    } catch (err) {
+      alert('Erro ao atualizar dados do usuário.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <Label>Username:</Label>
+      <Input name="username" value={form.username || ''} onChange={handleChange} />
+
+      <Label>Email:</Label>
+      <Input name="email" value={form.email || ''} onChange={handleChange} />
+
+      <Label>Birth Date:</Label>
+      <Input name="birthDate" type="date" value={form.birthDate || ''} onChange={handleChange} />
+
+      <Label>Address:</Label>
+      <Input name="address" value={form.address || ''} onChange={handleChange} />
+
+      <Label>Testnet API Key:</Label>
+      <Input name="testnetApiKey" value={form.testnetApiKey || ''} onChange={handleChange} />
+
+      <Label>Testnet Secret Key:</Label>
+      <Input name="testnetSecretKey" value={form.testnetSecretKey || ''} onChange={handleChange} />
+
+      <Label>Production API Key:</Label>
+      <Input name="productionApiKey" value={form.productionApiKey || ''} onChange={handleChange} />
+
+      <Label>Production Secret Key:</Label>
+      <Input name="productionSecretKey" value={form.productionSecretKey || ''} onChange={handleChange} />
+
+      <Label>Whatsapp Number:</Label>
+      <Input name="whatsappNumber" value={form.whatsappNumber || ''} onChange={handleChange} />
+
+      <Label>Telegram Chat ID:</Label>
+      <Input name="telegramChatId" value={form.telegramChatId || ''} onChange={handleChange} />
+
+      <Label>Whatsapp API Key:</Label>
+      <Input name="whatsappApiKey" value={form.whatsappApiKey || ''} onChange={handleChange} />
+
+      <div>
+        <Button type="submit" disabled={saving}>{saving ? 'Saving...' : 'Save'}</Button>
+        <Button type="button" onClick={() => setIsEditing(false)}>Cancel</Button>
+      </div>
+    </form>
+  );
+}
+
 function AccountInfo() {
   const [info, setInfo] = useState(null);
   const [trades, setTrades] = useState([]);
   const [symbol, setSymbol] = useState('BTCUSDT');
   const [loading, setLoading] = useState(true);
 
+  // Novos estados para edição de usuário
+  const [userData, setUserData] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+
   useEffect(() => {
-    async function fetchAccount() {
+    async function fetchAll() {
       setLoading(true);
       try {
-        const [infoRes, tradesRes] = await Promise.all([
+        const [infoRes, tradesRes, userRes] = await Promise.all([
           getAccountInfo(),
           getAccountTrades(symbol, 50),
+          getUserInfo(),
         ]);
         setInfo(infoRes);
         setTrades(tradesRes);
+        setUserData(userRes);
       } catch (error) {
         console.error('Error fetching account information:', error);
       } finally {
         setLoading(false);
       }
     }
-    fetchAccount();
+    fetchAll();
   }, [symbol]);
 
   if (loading) return <Loader />;
@@ -97,6 +185,30 @@ function AccountInfo() {
           onChange={(e) => setSymbol(e.target.value)}
         />
       </div>
+
+      {userData && (
+        <div>
+          <SectionTitle>User Information</SectionTitle>
+          {isEditing ? (
+            <EditForm userData={userData} setUserData={setUserData} setIsEditing={setIsEditing} />
+          ) : (
+            <div>
+              <p><strong>Username:</strong> {userData.username}</p>
+              <p><strong>Email:</strong> {userData.email}</p>
+              <p><strong>Birth Date:</strong> {userData.birthDate}</p>
+              <p><strong>Address:</strong> {userData.address}</p>
+              <p><strong>Testnet API Key:</strong> {userData.testnetApiKey}</p>
+              <p><strong>Testnet Secret Key:</strong> {userData.testnetSecretKey}</p>
+              <p><strong>Production API Key:</strong> {userData.productionApiKey}</p>
+              <p><strong>Production Secret Key:</strong> {userData.productionSecretKey}</p>
+              <p><strong>Whatsapp Number:</strong> {userData.whatsappNumber}</p>
+              <p><strong>Telegram Chat ID:</strong> {userData.telegramChatId}</p>
+              <p><strong>Whatsapp API Key:</strong> {userData.whatsappApiKey}</p>
+              <Button onClick={() => setIsEditing(true)}>Edit</Button>
+            </div>
+          )}
+        </div>
+      )}
 
       {info && (
         <div>
