@@ -17,4 +17,5 @@ public class UserResponseDTO {
     private String whatsappNumber;
     private String telegramChatId;
     private String whatsappApiKey;
+    private String role;
 }
