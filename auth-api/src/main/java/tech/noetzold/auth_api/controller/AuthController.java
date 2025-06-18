@@ -3,10 +3,9 @@ package tech.noetzold.auth_api.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import tech.noetzold.auth_api.dto.AuthResponseDTO;
-import tech.noetzold.auth_api.dto.UserLoginDTO;
-import tech.noetzold.auth_api.dto.UserRegisterDTO;
+import tech.noetzold.auth_api.dto.*;
 import tech.noetzold.auth_api.service.AuthService;
 import tech.noetzold.auth_api.service.AuditService;
 
@@ -48,5 +47,35 @@ public class AuthController {
         auditService.log(0L, dto.getEmail(), "LOGIN", "AUTH", "User logged in with email: " + dto.getEmail());
 
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<?> updateUser(@RequestBody UserUpdateDTO dto, Authentication authentication) {
+        log.info("PUT /api/auth/update called for user={}", authentication.getName());
+
+        try {
+            authService.updateUser(dto, authentication.getName());
+
+            auditService.log(
+                    null,
+                    authentication.getName(),
+                    "UPDATE",
+                    "AUTH",
+                    "User data updated"
+            );
+
+            return ResponseEntity.ok("User successfully updated");
+        } catch (Exception e) {
+            log.error("Error updating user: {}", e.getMessage());
+            return ResponseEntity.badRequest().body("Error updating user: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponseDTO> getCurrentUser(Authentication authentication) {
+        log.info("GET /api/auth/me called for user={}", authentication.getName());
+
+        UserResponseDTO user = authService.getUserByEmail(authentication.getName());
+        return ResponseEntity.ok(user);
     }
 }
