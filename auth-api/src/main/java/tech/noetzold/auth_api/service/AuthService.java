@@ -40,6 +40,7 @@ public class AuthService {
         dto.setWhatsappNumber(user.getWhatsappNumber());
         dto.setTelegramChatId(user.getTelegramChatId());
         dto.setWhatsappApiKey(user.getWhatsappApiKey());
+        dto.setRole(user.getRoles().stream().findFirst().orElse("VIEWER"));
 
         return dto;
     }
@@ -102,6 +103,7 @@ public class AuthService {
             throw new RuntimeException("Senha incorreta");
         }
 
-        return new AuthResponseDTO(jwtUtil.generateToken(user.getEmail(), user.getId(), "user"), user.getUsername());
+        String role = user.getRoles().stream().findFirst().orElse("VIEWER");
+        return new AuthResponseDTO(jwtUtil.generateToken(user.getEmail(), user.getId(), role), user.getUsername(), role);
     }
 }
