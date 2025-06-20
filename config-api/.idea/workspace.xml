@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="00be554b-7d9a-403b-a7b0-5bc2b7fdcbf3" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../api-gateway/logs/app.log" beforeDir="false" afterPath="$PROJECT_DIR$/../api-gateway/logs/app.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../api-gateway/logs/archive/app.2025-04-22.log.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../api-gateway/logs/archive/app.2025-04-23.log.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../api-gateway/logs/error.log" beforeDir="false" afterPath="$PROJECT_DIR$/../api-gateway/logs/error.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../auth-api/logs/app.log" beforeDir="false" afterPath="$PROJECT_DIR$/../auth-api/logs/app.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../auth-api/logs/archive/app.2025-04-22.log.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../auth-api/logs/archive/app.2025-04-23.log.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../auth-api/logs/archive/error.2025-04-18.log.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../auth-api/logs/archive/error.2025-04-20.log.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../futures-api/logs/app.log" beforeDir="false" afterPath="$PROJECT_DIR$/../futures-api/logs/app.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../futures-api/logs/archive/app.2025-04-17.log.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../futures-api/logs/archive/app.2025-04-19.log.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../futures-api/logs/archive/app.2025-04-22.log.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../futures-api/logs/archive/app.2025-04-23.log.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../futures-api/logs/error.log" beforeDir="false" afterPath="$PROJECT_DIR$/../futures-api/logs/error.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../notification-api/logs/app.log" beforeDir="false" afterPath="$PROJECT_DIR$/../notification-api/logs/app.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../notification-api/logs/archive/app.2025-04-22.log.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../notification-api/logs/archive/app.2025-04-23.log.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../notification-api/logs/archive/app.2025-04-24.log.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../notification-api/logs/archive/error.2025-04-23.log.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../notification-api/logs/error.log" beforeDir="false" afterPath="$PROJECT_DIR$/../notification-api/logs/error.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../spot-api/logs/app.log" beforeDir="false" afterPath="$PROJECT_DIR$/../spot-api/logs/app.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../spot-api/logs/archive/app.2025-04-22.log.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../spot-api/logs/archive/app.2025-04-23.log.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../spot-api/logs/archive/error.2025-04-19.log.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../spot-api/logs/archive/error.2025-04-20.log.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../spot-api/logs/error.log" beforeDir="false" afterPath="$PROJECT_DIR$/../spot-api/logs/error.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../strategy-api/logs/app.log" beforeDir="false" afterPath="$PROJECT_DIR$/../strategy-api/logs/app.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../strategy-api/logs/archive/app.2025-04-22.log.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../strategy-api/logs/archive/app.2025-04-23.log.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../strategy-api/logs/archive/error.2025-04-19.log.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../strategy-api/logs/archive/error.2025-04-23.log.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../strategy-api/logs/error.log" beforeDir="false" afterPath="$PROJECT_DIR$/../strategy-api/logs/error.log" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHomeTypeForPersistence" value="WRAPPER" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 1
+}</component>
+  <component name="ProjectId" id="2xgEkBbajY9dNFZCW9Y8DXBZafe" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Projetos/trAI-bot/config-api&quot;
+  }
+}</component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="00be554b-7d9a-403b-a7b0-5bc2b7fdcbf3" name="Changes" comment="" />
+      <created>1748351457208</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1748351457208</updated>
+    </task>
+    <servers />
+  </component>
+</project>
