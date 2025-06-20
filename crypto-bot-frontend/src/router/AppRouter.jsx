@@ -13,6 +13,7 @@ import AuthPage from '../pages/Auth/AuthPage';
 import CreateCustomStrategy from '../pages/Strategies/CreateCustomStrategy';
 import SuccessPage from "../pages/Auth/SuccessPage";
 import CancelPage from "../pages/Auth/CancelPage";
+import FuturesManager from '../pages/FuturesManager/FuturesManager';
 
 
 import { useAuth } from '../contexts/AuthContext';
@@ -86,6 +87,8 @@ const AppRouter = () => {
           </PrivateRoute>
         }
       />
+
+      <Route path="/futures" element={<FuturesManager />} />
 
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
